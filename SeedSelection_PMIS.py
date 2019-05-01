@@ -1,4 +1,5 @@
 from Diffusion import *
+import heap
 import operator
 
 
