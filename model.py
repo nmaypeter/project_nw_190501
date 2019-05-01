@@ -52,8 +52,8 @@ class Model:
                 if mep_flag == seed_set_length:
                     seed_set[mep_k_prod].add(mep_i_node)
                     ep_g = 0.0
-                    for _ in range(monte_carlo):
-                        ep_g += diff_main.getSeedSetProfit(seed_set)
+                    for _ in range(self.monte_carlo):
+                        ep_g += diff_model.getSeedSetProfit(seed_set)
                     now_profit = round(ep_g / self.monte_carlo, 4)
                     now_budget = round(now_budget + sc, 4)
                 else:
@@ -117,8 +117,8 @@ class Model:
                 if mep_flag == seed_set_length:
                     seed_set[mep_k_prod].add(mep_i_node)
                     ep_g = 0.0
-                    for _ in range(monte_carlo):
-                        ep_g += diff_main.getSeedSetProfit(seed_set)
+                    for _ in range(self.monte_carlo):
+                        ep_g += diff_model.getSeedSetProfit(seed_set)
                     now_profit = round(ep_g / self.monte_carlo, 4)
                     now_budget = round(now_budget + sc, 4)
                 else:
@@ -186,8 +186,8 @@ class Model:
                 if mep_flag == seed_set_length:
                     seed_set[mep_k_prod].add(mep_i_node)
                     ep_g = 0.0
-                    for _ in range(monte_carlo):
-                        ep_g += diff_main.getSeedSetProfit(seed_set)
+                    for _ in range(self.monte_carlo):
+                        ep_g += diff_model.getSeedSetProfit(seed_set)
                     now_profit = round(ep_g / self.monte_carlo, 4)
                     now_budget = round(now_budget + sc, 4)
                 else:
@@ -564,8 +564,8 @@ class Model:
                 if mep_flag == seed_set_length:
                     seed_set[mep_k_prod].add(mep_i_node)
                     ep_g = 0.0
-                    for _ in range(monte_carlo):
-                        ep_g += diff_main.getSeedSetProfit(seed_set)
+                    for _ in range(self.monte_carlo):
+                        ep_g += diff_model.getSeedSetProfit(seed_set)
                     now_profit = round(ep_g / self.monte_carlo, 4)
                     now_budget = round(now_budget + sc, 4)
                     s_matrix.append(copy.deepcopy(seed_set))
@@ -587,50 +587,50 @@ class Model:
                 mep_item = heap.heappop_max(celf_heap)
                 mep_mg, mep_k_prod, mep_i_node, mep_flag = mep_item
 
-                s_matrix = [copy.deepcopy(s_matrix) for _ in range(num_product)]
-                for kk in range(1, num_product):
-                    for kk_item in s_matrix[kk]:
-                        kk_item[0], kk_item[kk] = kk_item[kk], kk_item[0]
-                c_matrix = [c_matrix for _ in range(num_product)]
+            s_matrix = [copy.deepcopy(s_matrix) for _ in range(num_product)]
+            for kk in range(1, num_product):
+                for kk_item in s_matrix[kk]:
+                    kk_item[0], kk_item[kk] = kk_item[kk], kk_item[0]
+            c_matrix = [c_matrix for _ in range(num_product)]
 
-                mep_result = [0.0, [set() for _ in range(num_product)]]
-                ### bud_index: (list) the using budget index for products
-                ### bud_bound_index: (list) the bound budget index for products
-                bud_index, bud_bound_index = [len(kk) - 1 for kk in c_matrix], [0 for _ in range(num_product)]
-                ### temp_bound_index: (list) the bound to exclude the impossible budget combination s.t. the k-budget is smaller than the temp bound
-                temp_bound_index = [0 for _ in range(num_product)]
+            mep_result = [0.0, [set() for _ in range(num_product)]]
+            ### bud_index: (list) the using budget index for products
+            ### bud_bound_index: (list) the bound budget index for products
+            bud_index, bud_bound_index = [len(kk) - 1 for kk in c_matrix], [0 for _ in range(num_product)]
+            ### temp_bound_index: (list) the bound to exclude the impossible budget combination s.t. the k-budget is smaller than the temp bound
+            temp_bound_index = [0 for _ in range(num_product)]
 
-                while not operator.eq(bud_index, bud_bound_index):
-                    ### bud_pmis: (float) the budget in this pmis execution
-                    bud_pmis = sum(c_matrix[kk][bud_index[kk]] for kk in range(num_product))
+            while not operator.eq(bud_index, bud_bound_index):
+                ### bud_pmis: (float) the budget in this pmis execution
+                bud_pmis = sum(c_matrix[kk][bud_index[kk]] for kk in range(num_product))
 
-                    if bud_pmis <= self.total_budget:
-                        temp_bound_flag = 0
+                if bud_pmis <= self.total_budget:
+                    temp_bound_flag = 0
+                    for kk in range(num_product):
+                        if temp_bound_index[kk] >= bud_index[kk]:
+                            temp_bound_flag += 1
+
+                    if temp_bound_flag != num_product:
+                        temp_bound_index = copy.deepcopy(bud_index)
+                        # -- pmis execution --
+                        seed_set_pmis = [set() for _ in range(num_product)]
                         for kk in range(num_product):
-                            if temp_bound_index[kk] >= bud_index[kk]:
-                                temp_bound_flag += 1
+                            seed_set_pmis[kk] = s_matrix[kk][bud_index[kk]][kk]
 
-                        if temp_bound_flag != num_product:
-                            temp_bound_index = copy.deepcopy(bud_index)
-                            # -- pmis execution --
-                            seed_set_pmis = [set() for _ in range(num_product)]
-                            for kk in range(num_product):
-                                seed_set_pmis[kk] = s_matrix[kk][bud_index[kk]][kk]
+                        pro_acc = 0.0
+                        for _ in range(self.monte_carlo):
+                            pro_acc += diff_model.getSeedSetProfit(seed_set_pmis)
+                        pro_acc = round(pro_acc / self.monte_carlo, 4)
 
-                            pro_acc = 0.0
-                            for _ in range(self.monte_carlo):
-                                pro_acc += diff_model.getSeedSetProfit(seed_set_pmis)
-                            pro_acc = round(pro_acc / self.monte_carlo, 4)
+                        if pro_acc > mep_result[0]:
+                            mep_result = [pro_acc, seed_set_pmis]
 
-                            if pro_acc > mep_result[0]:
-                                mep_result = [pro_acc, seed_set_pmis]
-
-                    pointer = num_product - 1
-                    while bud_index[pointer] == bud_bound_index[pointer]:
-                        bud_index[pointer] = len(c_matrix[pointer]) - 1
-                        pointer -= 1
-                    bud_index[pointer] -= 1
-                seed_set = mep_result[1]
+                pointer = num_product - 1
+                while bud_index[pointer] == bud_bound_index[pointer]:
+                    bud_index[pointer] = len(c_matrix[pointer]) - 1
+                    pointer -= 1
+                bud_index[pointer] -= 1
+            seed_set = mep_result[1]
 
             print('ss_time = ' + str(round(time.time() - ss_strat_time, 2)) + 'sec')
             seed_set_sequence.append(seed_set)
@@ -697,6 +697,7 @@ class ModelPW:
         self.wpiwp = bool(1)
         self.sample_number = 10
         self.ppp_seq = [2, 3]
+        self.monte_carlo = 10
 
     def model_ngpw(self):
         ss_strat_time = time.time()
