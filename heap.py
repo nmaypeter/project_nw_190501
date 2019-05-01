@@ -58,14 +58,3 @@ def _siftup_max(heap, pos):
     # to its final resting place (by sifting its parents down).
     heap[pos] = newitem
     _siftdown_max(heap, startpos, pos)
-
-
-def heapsort(iterable):
-    h = []
-    for value in iterable:
-        heappush_max(h, value)
-        print(h)
-    return [heappop_max(h) for _ in range(len(h))]
-
-
-# print(heapsort([1, 3, 5, 7, 9, 2, 4, 6, 8, 0]))
