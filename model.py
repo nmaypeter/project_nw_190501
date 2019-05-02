@@ -735,8 +735,8 @@ class ModelPW:
                 if mep_flag == seed_set_length:
                     seed_set[mep_k_prod].add(mep_i_node)
                     ep_g = 0.0
-                    for _ in range(monte_carlo):
-                        ep_g += diff_main.getSeedSetProfit(seed_set)
+                    for _ in range(self.monte_carlo):
+                        ep_g += diffpw_model.getSeedSetProfit(seed_set)
                     now_profit = round(ep_g / self.monte_carlo, 4)
                     now_budget = round(now_budget + sc, 4)
                 else:
@@ -800,8 +800,8 @@ class ModelPW:
                 if mep_flag == seed_set_length:
                     seed_set[mep_k_prod].add(mep_i_node)
                     ep_g = 0.0
-                    for _ in range(monte_carlo):
-                        ep_g += diff_main.getSeedSetProfit(seed_set)
+                    for _ in range(self.monte_carlo):
+                        ep_g += diffpw_model.getSeedSetProfit(seed_set)
                     now_profit = round(ep_g / self.monte_carlo, 4)
                     now_budget = round(now_budget + sc, 4)
                 else:
@@ -869,8 +869,8 @@ class ModelPW:
                 if mep_flag == seed_set_length:
                     seed_set[mep_k_prod].add(mep_i_node)
                     ep_g = 0.0
-                    for _ in range(monte_carlo):
-                        ep_g += diff_main.getSeedSetProfit(seed_set)
+                    for _ in range(self.monte_carlo):
+                        ep_g += diffpw_model.getSeedSetProfit(seed_set)
                     now_profit = round(ep_g / self.monte_carlo, 4)
                     now_budget = round(now_budget + sc, 4)
                 else:
