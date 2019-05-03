@@ -209,7 +209,7 @@ class EvaluationM:
         eva = Evaluation(graph_dict, seed_cost_dict, product_list, ppp, self.wpiwp)
         personal_prob_list = eva.setPersonalPurchasingProbList(wallet_list)
         for sample_count, sample_seed_set in enumerate(seed_set_sequence):
-            print('@ evaluation @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+            print('@ ' + self.model_name + ' evaluation @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
                   ', wd = ' + wallet_distribution_type + ', ppp = ' + ppp_strategy + ', sample_count = ' + str(sample_count))
             sample_pro_k_acc, sample_pnn_k_acc = [0.0 for _ in range(num_product)], [0 for _ in range(num_product)]
 
