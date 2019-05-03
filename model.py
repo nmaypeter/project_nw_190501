@@ -19,6 +19,7 @@ class Model:
 
     def model_ng(self):
         ss_strat_time = time.time()
+        model_name = 'mng'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
 
@@ -31,7 +32,7 @@ class Model:
         ssng_model = SeedSelectionNG(graph_dict, seed_cost_dict, product_list, self.monte_carlo)
         diff_model = Diffusion(graph_dict, seed_cost_dict, product_list, self.monte_carlo)
         for sample_count in range(self.sample_number):
-            print('@ seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
                   ', sample_count = ' + str(sample_count))
             now_budget, now_profit = 0.0, 0.0
             seed_set = [set() for _ in range(num_product)]
@@ -77,13 +78,14 @@ class Model:
             seed_set_sequence.append(seed_set)
 
         ss_time = round(time.time() - ss_strat_time, 2)
-        eva_model = EvaluationM('mng', self.dataset_name, self.product_name, self.cascade_model, ss_time)
+        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for wallet_distribution_type in self.wd_seq:
             for ppp in self.ppp_seq:
                 eva_model.evaluate(wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_ngr(self):
         ss_strat_time = time.time()
+        model_name = 'mngr'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
 
@@ -96,7 +98,7 @@ class Model:
         ssng_model = SeedSelectionNG(graph_dict, seed_cost_dict, product_list, self.monte_carlo)
         diff_model = Diffusion(graph_dict, seed_cost_dict, product_list, self.monte_carlo)
         for sample_count in range(self.sample_number):
-            print('@ seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
                   ', sample_count = ' + str(sample_count))
             now_budget, now_profit = 0.0, 0.0
             seed_set = [set() for _ in range(num_product)]
@@ -146,13 +148,14 @@ class Model:
             seed_set_sequence.append(seed_set)
 
         ss_time = round(time.time() - ss_strat_time, 2)
-        eva_model = EvaluationM('mngr', self.dataset_name, self.product_name, self.cascade_model, ss_time)
+        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for wallet_distribution_type in self.wd_seq:
             for ppp in self.ppp_seq:
                 eva_model.evaluate(wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_ngsr(self):
         ss_strat_time = time.time()
+        model_name = 'mngsr'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
 
@@ -165,7 +168,7 @@ class Model:
         ssng_model = SeedSelectionNG(graph_dict, seed_cost_dict, product_list, self.monte_carlo)
         diff_model = Diffusion(graph_dict, seed_cost_dict, product_list, self.monte_carlo)
         for sample_count in range(self.sample_number):
-            print('@ seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
                   ', sample_count = ' + str(sample_count))
             now_budget, now_profit = 0.0, 0.0
             seed_set = [set() for _ in range(num_product)]
@@ -215,13 +218,14 @@ class Model:
             seed_set_sequence.append(seed_set)
 
         ss_time = round(time.time() - ss_strat_time, 2)
-        eva_model = EvaluationM('mngsr', self.dataset_name, self.product_name, self.cascade_model, ss_time)
+        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for wallet_distribution_type in self.wd_seq:
             for ppp in self.ppp_seq:
                 eva_model.evaluate(wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_ngap(self):
         ss_strat_time = time.time()
+        model_name = 'mngap'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
 
@@ -234,7 +238,7 @@ class Model:
         ssngap_model = SeedSelectionNGAP(graph_dict, seed_cost_dict, product_list)
         diffap_model = DiffusionAccProb(graph_dict, seed_cost_dict, product_list)
         for sample_count in range(self.sample_number):
-            print('@ seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
                   ', sample_count = ' + str(sample_count))
             now_budget, now_profit = 0.0, 0.0
             seed_set = [set() for _ in range(num_product)]
@@ -285,13 +289,14 @@ class Model:
             seed_set_sequence.append(seed_set)
 
         ss_time = round(time.time() - ss_strat_time, 2)
-        eva_model = EvaluationM('mngap', self.dataset_name, self.product_name, self.cascade_model, ss_time)
+        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for wallet_distribution_type in self.wd_seq:
             for ppp in self.ppp_seq:
                 eva_model.evaluate(wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_ngapr(self):
         ss_strat_time = time.time()
+        model_name = 'mngapr'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
 
@@ -304,7 +309,7 @@ class Model:
         ssngap_model = SeedSelectionNGAP(graph_dict, seed_cost_dict, product_list)
         diffap_model = DiffusionAccProb(graph_dict, seed_cost_dict, product_list)
         for sample_count in range(self.sample_number):
-            print('@ seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
                   ', sample_count = ' + str(sample_count))
             now_budget, now_profit = 0.0, 0.0
             seed_set = [set() for _ in range(num_product)]
@@ -359,13 +364,14 @@ class Model:
             seed_set_sequence.append(seed_set)
 
         ss_time = round(time.time() - ss_strat_time, 2)
-        eva_model = EvaluationM('mngapr', self.dataset_name, self.product_name, self.cascade_model, ss_time)
+        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for wallet_distribution_type in self.wd_seq:
             for ppp in self.ppp_seq:
                 eva_model.evaluate(wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_ngapsr(self):
         ss_strat_time = time.time()
+        model_name = 'mngapsr'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
 
@@ -378,7 +384,7 @@ class Model:
         ssngap_model = SeedSelectionNGAP(graph_dict, seed_cost_dict, product_list)
         diffap_model = DiffusionAccProb(graph_dict, seed_cost_dict, product_list)
         for sample_count in range(self.sample_number):
-            print('@ seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
                   ', sample_count = ' + str(sample_count))
             now_budget, now_profit = 0.0, 0.0
             seed_set = [set() for _ in range(num_product)]
@@ -433,13 +439,14 @@ class Model:
             seed_set_sequence.append(seed_set)
 
         ss_time = round(time.time() - ss_strat_time, 2)
-        eva_model = EvaluationM('mngapsr', self.dataset_name, self.product_name, self.cascade_model, ss_time)
+        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for wallet_distribution_type in self.wd_seq:
             for ppp in self.ppp_seq:
                 eva_model.evaluate(wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_hd(self):
         ss_strat_time = time.time()
+        model_name = 'mhd'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
 
@@ -451,7 +458,7 @@ class Model:
         seed_set_sequence = []
         sshd_model = SeedSelectionHD(graph_dict, seed_cost_dict, product_list)
         for sample_count in range(self.sample_number):
-            print('@ seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
                   ', sample_count = ' + str(sample_count))
             now_budget = 0.0
             seed_set = [set() for _ in range(num_product)]
@@ -478,13 +485,14 @@ class Model:
             seed_set_sequence.append(seed_set)
 
         ss_time = round(time.time() - ss_strat_time, 2)
-        eva_model = EvaluationM('mhd', self.dataset_name, self.product_name, self.cascade_model, ss_time)
+        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for wallet_distribution_type in self.wd_seq:
             for ppp in self.ppp_seq:
                 eva_model.evaluate(wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_hed(self):
         ss_strat_time = time.time()
+        model_name = 'mhed'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
 
@@ -496,7 +504,7 @@ class Model:
         seed_set_sequence = []
         sshd_model = SeedSelectionHD(graph_dict, seed_cost_dict, product_list)
         for sample_count in range(self.sample_number):
-            print('@ seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
                   ', sample_count = ' + str(sample_count))
             now_budget = 0.0
             seed_set = [set() for _ in range(num_product)]
@@ -523,13 +531,14 @@ class Model:
             seed_set_sequence.append(seed_set)
 
         ss_time = round(time.time() - ss_strat_time, 2)
-        eva_model = EvaluationM('mhed', self.dataset_name, self.product_name, self.cascade_model, ss_time)
+        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for wallet_distribution_type in self.wd_seq:
             for ppp in self.ppp_seq:
                 eva_model.evaluate(wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_pmis(self):
         ss_strat_time = time.time()
+        model_name = 'mpmis'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
 
@@ -542,7 +551,7 @@ class Model:
         sspmis_model = SeedSelectionPMIS(graph_dict, seed_cost_dict, product_list, self.monte_carlo)
         diff_model = Diffusion(graph_dict, seed_cost_dict, product_list, self.monte_carlo)
         for sample_count in range(self.sample_number):
-            print('@ seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
                   ', sample_count = ' + str(sample_count))
             now_budget, now_profit = 0.0, 0.0
             seed_set = [set() for _ in range(num_product)]
@@ -636,13 +645,14 @@ class Model:
             seed_set_sequence.append(seed_set)
 
         ss_time = round(time.time() - ss_strat_time, 2)
-        eva_model = EvaluationM('mpmis', self.dataset_name, self.product_name, self.cascade_model, ss_time)
+        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for wallet_distribution_type in self.wd_seq:
             for ppp in self.ppp_seq:
                 eva_model.evaluate(wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_r(self):
         ss_strat_time = time.time()
+        model_name = 'mr'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
 
@@ -654,7 +664,7 @@ class Model:
         seed_set_sequence = []
         ssr_model = SeedSelectionRandom(graph_dict, seed_cost_dict, product_list)
         for sample_count in range(self.sample_number):
-            print('@ seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
                   ', sample_count = ' + str(sample_count))
             now_budget = 0.0
             seed_set = [set() for _ in range(num_product)]
@@ -681,7 +691,7 @@ class Model:
             seed_set_sequence.append(seed_set)
 
         ss_time = round(time.time() - ss_strat_time, 2)
-        eva_model = EvaluationM('mr', self.dataset_name, self.product_name, self.cascade_model, ss_time)
+        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for wallet_distribution_type in self.wd_seq:
             for ppp in self.ppp_seq:
                 eva_model.evaluate(wallet_distribution_type, ppp, seed_set_sequence)
@@ -701,6 +711,7 @@ class ModelPW:
 
     def model_ngpw(self):
         ss_strat_time = time.time()
+        model_name = 'mngpw'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
 
@@ -714,7 +725,7 @@ class ModelPW:
         ssngpw_model = SeedSelectionNGPW(graph_dict, seed_cost_dict, product_list, product_weight_list, self.monte_carlo)
         diffpw_model = DiffusionPW(graph_dict, seed_cost_dict, product_list, product_weight_list, self.monte_carlo)
         for sample_count in range(self.sample_number):
-            print('@ seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
                   ', wd = ' + str(self.wallet_distribution_type) + ', sample_count = ' + str(sample_count))
             now_budget, now_profit = 0.0, 0.0
             seed_set = [set() for _ in range(num_product)]
@@ -760,12 +771,13 @@ class ModelPW:
             seed_set_sequence.append(seed_set)
 
         ss_time = round(time.time() - ss_strat_time, 2)
-        eva_model = EvaluationM('mngpw', self.dataset_name, self.product_name, self.cascade_model, ss_time)
+        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for ppp in self.ppp_seq:
             eva_model.evaluate(self.wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_ngrpw(self):
         ss_strat_time = time.time()
+        model_name = 'mngrpw'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
 
@@ -779,7 +791,7 @@ class ModelPW:
         ssngpw_model = SeedSelectionNGPW(graph_dict, seed_cost_dict, product_list, product_weight_list, self.monte_carlo)
         diffpw_model = DiffusionPW(graph_dict, seed_cost_dict, product_list, product_weight_list, self.monte_carlo)
         for sample_count in range(self.sample_number):
-            print('@ seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
                   ', wd = ' + str(self.wallet_distribution_type) + ', sample_count = ' + str(sample_count))
             now_budget, now_profit = 0.0, 0.0
             seed_set = [set() for _ in range(num_product)]
@@ -829,12 +841,13 @@ class ModelPW:
             seed_set_sequence.append(seed_set)
 
         ss_time = round(time.time() - ss_strat_time, 2)
-        eva_model = EvaluationM('mngrpw', self.dataset_name, self.product_name, self.cascade_model, ss_time)
+        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for ppp in self.ppp_seq:
             eva_model.evaluate(self.wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_ngsrpw(self):
         ss_strat_time = time.time()
+        model_name = 'mngsrpw'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
 
@@ -848,7 +861,7 @@ class ModelPW:
         ssngpw_model = SeedSelectionNGPW(graph_dict, seed_cost_dict, product_list, product_weight_list, self.monte_carlo)
         diffpw_model = DiffusionPW(graph_dict, seed_cost_dict, product_list, product_weight_list, self.monte_carlo)
         for sample_count in range(self.sample_number):
-            print('@ seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
                   ', wd = ' + str(self.wallet_distribution_type) + ', sample_count = ' + str(sample_count))
             now_budget, now_profit = 0.0, 0.0
             seed_set = [set() for _ in range(num_product)]
@@ -898,12 +911,13 @@ class ModelPW:
             seed_set_sequence.append(seed_set)
 
         ss_time = round(time.time() - ss_strat_time, 2)
-        eva_model = EvaluationM('mngrpw', self.dataset_name, self.product_name, self.cascade_model, ss_time)
+        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for ppp in self.ppp_seq:
             eva_model.evaluate(self.wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_ngappw(self):
         ss_strat_time = time.time()
+        model_name = 'mngappw'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
 
@@ -917,7 +931,7 @@ class ModelPW:
         ssngappw_model = SeedSelectionNGAPPW(graph_dict, seed_cost_dict, product_list, product_weight_list)
         diffap_model = DiffusionAccProb(graph_dict, seed_cost_dict, product_list)
         for sample_count in range(self.sample_number):
-            print('@ seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
                   ', wd = ' + str(self.wallet_distribution_type) + ', sample_count = ' + str(sample_count))
             now_budget, now_profit = 0.0, 0.0
             seed_set = [set() for _ in range(num_product)]
@@ -968,12 +982,13 @@ class ModelPW:
             seed_set_sequence.append(seed_set)
 
         ss_time = round(time.time() - ss_strat_time, 2)
-        eva_model = EvaluationM('mngappw', self.dataset_name, self.product_name, self.cascade_model, ss_time)
+        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for ppp in self.ppp_seq:
             eva_model.evaluate(self.wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_ngaprpw(self):
         ss_strat_time = time.time()
+        model_name = 'mngaprpw'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
 
@@ -987,7 +1002,7 @@ class ModelPW:
         ssngappw_model = SeedSelectionNGAPPW(graph_dict, seed_cost_dict, product_list, product_weight_list)
         diffap_model = DiffusionAccProb(graph_dict, seed_cost_dict, product_list)
         for sample_count in range(self.sample_number):
-            print('@ seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
                   ', wd = ' + str(self.wallet_distribution_type) + ', sample_count = ' + str(sample_count))
             now_budget, now_profit = 0.0, 0.0
             seed_set = [set() for _ in range(num_product)]
@@ -1042,12 +1057,13 @@ class ModelPW:
             seed_set_sequence.append(seed_set)
 
         ss_time = round(time.time() - ss_strat_time, 2)
-        eva_model = EvaluationM('mngaprpw', self.dataset_name, self.product_name, self.cascade_model, ss_time)
+        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for ppp in self.ppp_seq:
             eva_model.evaluate(self.wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_ngapsrpw(self):
         ss_strat_time = time.time()
+        model_name = 'mngapsrpw'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
 
@@ -1061,7 +1077,7 @@ class ModelPW:
         ssngappw_model = SeedSelectionNGAPPW(graph_dict, seed_cost_dict, product_list, product_weight_list)
         diffap_model = DiffusionAccProb(graph_dict, seed_cost_dict, product_list)
         for sample_count in range(self.sample_number):
-            print('@ seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
                   ', wd = ' + str(self.wallet_distribution_type) + ', sample_count = ' + str(sample_count))
             now_budget, now_profit = 0.0, 0.0
             seed_set = [set() for _ in range(num_product)]
@@ -1116,12 +1132,13 @@ class ModelPW:
             seed_set_sequence.append(seed_set)
 
         ss_time = round(time.time() - ss_strat_time, 2)
-        eva_model = EvaluationM('mngapsrpw', self.dataset_name, self.product_name, self.cascade_model, ss_time)
+        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for ppp in self.ppp_seq:
             eva_model.evaluate(self.wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_hdpw(self):
         ss_strat_time = time.time()
+        model_name = 'mhdpw'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
 
@@ -1134,7 +1151,7 @@ class ModelPW:
         seed_set_sequence = []
         sshdpw_model = SeedSelectionHDPW(graph_dict, seed_cost_dict, product_list, product_weight_list)
         for sample_count in range(self.sample_number):
-            print('@ seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
                   ', wd = ' + str(self.wallet_distribution_type) + ', sample_count = ' + str(sample_count))
             now_budget = 0.0
             seed_set = [set() for _ in range(num_product)]
@@ -1161,12 +1178,13 @@ class ModelPW:
             seed_set_sequence.append(seed_set)
 
         ss_time = round(time.time() - ss_strat_time, 2)
-        eva_model = EvaluationM('mhdpw', self.dataset_name, self.product_name, self.cascade_model, ss_time)
+        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for ppp in self.ppp_seq:
             eva_model.evaluate(self.wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_hedpw(self):
         ss_strat_time = time.time()
+        model_name = 'mhedpw'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
 
@@ -1179,7 +1197,7 @@ class ModelPW:
         seed_set_sequence = []
         sshdpw_model = SeedSelectionHDPW(graph_dict, seed_cost_dict, product_list, product_weight_list)
         for sample_count in range(self.sample_number):
-            print('@ seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
                   ', wd = ' + str(self.wallet_distribution_type) + ', sample_count = ' + str(sample_count))
             now_budget = 0.0
             seed_set = [set() for _ in range(num_product)]
@@ -1206,6 +1224,6 @@ class ModelPW:
             seed_set_sequence.append(seed_set)
 
         ss_time = round(time.time() - ss_strat_time, 2)
-        eva_model = EvaluationM('mhedpw', self.dataset_name, self.product_name, self.cascade_model, ss_time)
+        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for ppp in self.ppp_seq:
             eva_model.evaluate(self.wallet_distribution_type, ppp, seed_set_sequence)
