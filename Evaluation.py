@@ -187,7 +187,6 @@ class EvaluationM:
         self.product_name = product_name
         self.cascade_model = cascade_model
         self.wpiwp = bool(1)
-        self.sample_number = 10
         self.ss_time = ss_time
         self.eva_monte_carlo = 100
 
@@ -230,12 +229,12 @@ class EvaluationM:
             print(result[sample_count])
             print('------------------------------------------')
 
-        avg_pro = round(sum(r[0] for r in result) / self.sample_number, 4)
-        avg_bud = round(sum(r[1] for r in result) / self.sample_number, 4)
-        avg_sn_k = [round(sum(r[2][kk] for r in result) / self.sample_number, 4) for kk in range(num_product)]
-        avg_pnn_k = [round(sum(r[3][kk] for r in result) / self.sample_number, 4) for kk in range(num_product)]
-        avg_pro_k = [round(sum(r[4][kk] for r in result) / self.sample_number, 4) for kk in range(num_product)]
-        avg_bud_k = [round(sum(r[5][kk] for r in result) / self.sample_number, 4) for kk in range(num_product)]
+        avg_pro = round(sum(r[0] for r in result) / len(seed_set_sequence), 4)
+        avg_bud = round(sum(r[1] for r in result) / len(seed_set_sequence), 4)
+        avg_sn_k = [round(sum(r[2][kk] for r in result) / len(seed_set_sequence), 4) for kk in range(num_product)]
+        avg_pnn_k = [round(sum(r[3][kk] for r in result) / len(seed_set_sequence), 4) for kk in range(num_product)]
+        avg_pro_k = [round(sum(r[4][kk] for r in result) / len(seed_set_sequence), 4) for kk in range(num_product)]
+        avg_bud_k = [round(sum(r[5][kk] for r in result) / len(seed_set_sequence), 4) for kk in range(num_product)]
 
         path = 'result/' + self.model_name + '_' + wallet_distribution_type + '_ppp' + str(ppp) + '_wpiwp' * self.wpiwp
         if not os.path.isdir(path):
@@ -244,7 +243,7 @@ class EvaluationM:
         fw.write(self.model_name + ', ' + self.dataset_name + '_' + self.cascade_model + ', ' + self.product_name + '\n' +
                  'ppp = ' + str(ppp) + ', wd = ' + wallet_distribution_type + ', wpiwp = ' + str(self.wpiwp) + '\n\n' +
                  'avg_profit = ' + str(avg_pro) + ', avg_budget = ' + str(avg_bud) + '\n' +
-                 'total_time = ' + str(self.ss_time) + ', avg_time = ' + str(round(self.ss_time / self.sample_number, 4)) + '\n')
+                 'total_time = ' + str(self.ss_time) + ', avg_time = ' + str(round(self.ss_time / len(seed_set_sequence), 4)) + '\n')
         fw.write('\nprofit_ratio =')
         for kk in range(num_product):
             fw.write(' ' + str(avg_pro_k[kk]))
