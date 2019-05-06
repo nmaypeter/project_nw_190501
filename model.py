@@ -18,7 +18,7 @@ class Model:
         self.monte_carlo = 10
 
     def model_ng(self):
-        ss_strat_time = time.time()
+        ss_start_time = time.time()
         model_name = 'mng'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
@@ -74,17 +74,17 @@ class Model:
                 mep_item = heap.heappop_max(celf_heap)
                 mep_mg, mep_k_prod, mep_i_node, mep_flag = mep_item
 
-            print('ss_time = ' + str(round(time.time() - ss_strat_time, 2)) + 'sec')
+            print('ss_time = ' + str(round(time.time() - ss_start_time, 2)) + 'sec')
             seed_set_sequence.append(seed_set)
 
-        ss_time = round(time.time() - ss_strat_time, 2)
+        ss_time = round(time.time() - ss_start_time, 2)
         eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for wallet_distribution_type in self.wd_seq:
             for ppp in self.ppp_seq:
                 eva_model.evaluate(wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_ngr(self):
-        ss_strat_time = time.time()
+        ss_start_time = time.time()
         model_name = 'mngr'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
@@ -144,17 +144,17 @@ class Model:
                 mep_item = heap.heappop_max(celf_heap)
                 mep_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
 
-            print('ss_time = ' + str(round(time.time() - ss_strat_time, 2)) + 'sec')
+            print('ss_time = ' + str(round(time.time() - ss_start_time, 2)) + 'sec')
             seed_set_sequence.append(seed_set)
 
-        ss_time = round(time.time() - ss_strat_time, 2)
+        ss_time = round(time.time() - ss_start_time, 2)
         eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for wallet_distribution_type in self.wd_seq:
             for ppp in self.ppp_seq:
                 eva_model.evaluate(wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_ngsr(self):
-        ss_strat_time = time.time()
+        ss_start_time = time.time()
         model_name = 'mngsr'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
@@ -214,238 +214,17 @@ class Model:
                 mep_item = heap.heappop_max(celf_heap)
                 mep_seed_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
 
-            print('ss_time = ' + str(round(time.time() - ss_strat_time, 2)) + 'sec')
+            print('ss_time = ' + str(round(time.time() - ss_start_time, 2)) + 'sec')
             seed_set_sequence.append(seed_set)
 
-        ss_time = round(time.time() - ss_strat_time, 2)
-        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
-        for wallet_distribution_type in self.wd_seq:
-            for ppp in self.ppp_seq:
-                eva_model.evaluate(wallet_distribution_type, ppp, seed_set_sequence)
-
-    def model_ngap(self):
-        ss_strat_time = time.time()
-        model_name = 'mngap'
-        iniG = IniGraph(self.dataset_name)
-        iniP = IniProduct(self.product_name)
-
-        seed_cost_dict = iniG.constructSeedCostDict()
-        graph_dict = iniG.constructGraphDict(self.cascade_model)
-        product_list = iniP.getProductList()
-        num_product = len(product_list)
-
-        seed_set_sequence = []
-        ssngap_model = SeedSelectionNGAP(graph_dict, seed_cost_dict, product_list)
-        diffap_model = DiffusionAccProb(graph_dict, seed_cost_dict, product_list)
-        for sample_count in range(self.sample_number):
-            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
-                  ', sample_count = ' + str(sample_count))
-            now_budget, now_profit = 0.0, 0.0
-            seed_set = [set() for _ in range(num_product)]
-            expected_profit_k = [0.0 for _ in range(num_product)]
-            celf_heap = ssngap_model.generateCelfHeap()
-            mep_item = heap.heappop_max(celf_heap)
-            mep_mg, mep_k_prod, mep_i_node, mep_flag = mep_item
-
-            while now_budget < self.total_budget and mep_i_node != '-1':
-                sc = seed_cost_dict[mep_i_node]
-                seed_set_length = sum(len(seed_set[kk]) for kk in range(num_product))
-                if round(now_budget + sc, 4) > self.total_budget:
-                    mep_item = heap.heappop_max(celf_heap)
-                    mep_mg, mep_k_prod, mep_i_node, mep_flag = mep_item
-                    if mep_i_node == '-1':
-                        break
-                    continue
-
-                if mep_flag == seed_set_length:
-                    seed_set[mep_k_prod].add(mep_i_node)
-                    now_profit = round(now_profit + mep_mg, 4)
-                    now_budget = round(now_budget + sc, 4)
-                    expected_profit_k[mep_k_prod] = round(expected_profit_k[mep_k_prod] + mep_mg, 4)
-                else:
-                    seed_set_k = copy.deepcopy(seed_set[mep_k_prod])
-                    seed_set_k.add(mep_i_node)
-                    s_dict = {}
-                    for s in seed_set_k:
-                        i_dict = diffap_model.buildNodeDict(seed_set_k, s, 1)
-                        for ii in i_dict:
-                            if ii not in s_dict:
-                                s_dict[ii] = i_dict[ii]
-                            else:
-                                s_dict[ii] += i_dict[ii]
-                    expected_inf = getExpectedInf(s_dict)
-                    ep_g = round(expected_inf * product_list[mep_k_prod][0], 4)
-                    mg_g = round(ep_g - expected_profit_k[mep_k_prod], 4)
-                    flag_g = seed_set_length
-
-                    if mg_g > 0:
-                        celf_item_g = (mg_g, mep_k_prod, mep_i_node, flag_g)
-                        heap.heappush_max(celf_heap, celf_item_g)
-
-                mep_item = heap.heappop_max(celf_heap)
-                mep_mg, mep_k_prod, mep_i_node, mep_flag = mep_item
-
-            print('ss_time = ' + str(round(time.time() - ss_strat_time, 2)) + 'sec')
-            seed_set_sequence.append(seed_set)
-
-        ss_time = round(time.time() - ss_strat_time, 2)
-        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
-        for wallet_distribution_type in self.wd_seq:
-            for ppp in self.ppp_seq:
-                eva_model.evaluate(wallet_distribution_type, ppp, seed_set_sequence)
-
-    def model_ngapr(self):
-        ss_strat_time = time.time()
-        model_name = 'mngapr'
-        iniG = IniGraph(self.dataset_name)
-        iniP = IniProduct(self.product_name)
-
-        seed_cost_dict = iniG.constructSeedCostDict()
-        graph_dict = iniG.constructGraphDict(self.cascade_model)
-        product_list = iniP.getProductList()
-        num_product = len(product_list)
-
-        seed_set_sequence = []
-        ssngap_model = SeedSelectionNGAP(graph_dict, seed_cost_dict, product_list)
-        diffap_model = DiffusionAccProb(graph_dict, seed_cost_dict, product_list)
-        for sample_count in range(self.sample_number):
-            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
-                  ', sample_count = ' + str(sample_count))
-            now_budget, now_profit = 0.0, 0.0
-            seed_set = [set() for _ in range(num_product)]
-            expected_profit_k = [0.0 for _ in range(num_product)]
-            celf_heap = ssngap_model.generateCelfHeapR()
-            mep_item = heap.heappop_max(celf_heap)
-            mep_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
-
-            while now_budget < self.total_budget and mep_i_node != '-1':
-                sc = seed_cost_dict[mep_i_node]
-                seed_set_length = sum(len(seed_set[kk]) for kk in range(num_product))
-                if round(now_budget + sc, 4) > self.total_budget:
-                    mep_item = heap.heappop_max(celf_heap)
-                    mep_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
-                    if mep_i_node == '-1':
-                        break
-                    continue
-
-                if mep_flag == seed_set_length:
-                    seed_set[mep_k_prod].add(mep_i_node)
-                    now_profit = round(now_profit + mep_ratio * sc, 4)
-                    now_budget = round(now_budget + sc, 4)
-                    expected_profit_k[mep_k_prod] = round(expected_profit_k[mep_k_prod] + mep_ratio * sc, 4)
-                else:
-                    seed_set_k = copy.deepcopy(seed_set[mep_k_prod])
-                    seed_set_k.add(mep_i_node)
-                    s_dict = {}
-                    for s in seed_set_k:
-                        i_dict = diffap_model.buildNodeDict(seed_set_k, s, 1)
-                        for ii in i_dict:
-                            if ii not in s_dict:
-                                s_dict[ii] = i_dict[ii]
-                            else:
-                                s_dict[ii] += i_dict[ii]
-                    expected_inf = getExpectedInf(s_dict)
-                    ep_g = round(expected_inf * product_list[mep_k_prod][0], 4)
-                    if sc == 0:
-                        break
-                    else:
-                        mg_g = round(ep_g - expected_profit_k[mep_k_prod], 4)
-                        mg_ratio_g = round(mg_g / sc, 4)
-                    flag_g = seed_set_length
-
-                    if mg_ratio_g > 0:
-                        celf_item_g = (mg_ratio_g, mep_k_prod, mep_i_node, flag_g)
-                        heap.heappush_max(celf_heap, celf_item_g)
-
-                mep_item = heap.heappop_max(celf_heap)
-                mep_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
-
-            print('ss_time = ' + str(round(time.time() - ss_strat_time, 2)) + 'sec')
-            seed_set_sequence.append(seed_set)
-
-        ss_time = round(time.time() - ss_strat_time, 2)
-        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
-        for wallet_distribution_type in self.wd_seq:
-            for ppp in self.ppp_seq:
-                eva_model.evaluate(wallet_distribution_type, ppp, seed_set_sequence)
-
-    def model_ngapsr(self):
-        ss_strat_time = time.time()
-        model_name = 'mngapsr'
-        iniG = IniGraph(self.dataset_name)
-        iniP = IniProduct(self.product_name)
-
-        seed_cost_dict = iniG.constructSeedCostDict()
-        graph_dict = iniG.constructGraphDict(self.cascade_model)
-        product_list = iniP.getProductList()
-        num_product = len(product_list)
-
-        seed_set_sequence = []
-        ssngap_model = SeedSelectionNGAP(graph_dict, seed_cost_dict, product_list)
-        diffap_model = DiffusionAccProb(graph_dict, seed_cost_dict, product_list)
-        for sample_count in range(self.sample_number):
-            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
-                  ', sample_count = ' + str(sample_count))
-            now_budget, now_profit = 0.0, 0.0
-            seed_set = [set() for _ in range(num_product)]
-            expected_profit_k = [0.0 for _ in range(num_product)]
-            celf_heap = ssngap_model.generateCelfHeapR()
-            mep_item = heap.heappop_max(celf_heap)
-            mep_seed_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
-
-            while now_budget < self.total_budget and mep_i_node != '-1':
-                sc = seed_cost_dict[mep_i_node]
-                seed_set_length = sum(len(seed_set[kk]) for kk in range(num_product))
-                if round(now_budget + sc, 4) > self.total_budget:
-                    mep_item = heap.heappop_max(celf_heap)
-                    mep_seed_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
-                    if mep_i_node == '-1':
-                        break
-                    continue
-
-                if mep_flag == seed_set_length:
-                    seed_set[mep_k_prod].add(mep_i_node)
-                    now_profit = round(now_profit + mep_seed_ratio * (now_budget + sc), 4)
-                    now_budget = round(now_budget + sc, 4)
-                    expected_profit_k[mep_k_prod] = round(expected_profit_k[mep_k_prod] + mep_seed_ratio * now_budget, 4)
-                else:
-                    seed_set_k = copy.deepcopy(seed_set[mep_k_prod])
-                    seed_set_k.add(mep_i_node)
-                    s_dict = {}
-                    for s in seed_set_k:
-                        i_dict = diffap_model.buildNodeDict(seed_set_k, s, 1)
-                        for ii in i_dict:
-                            if ii not in s_dict:
-                                s_dict[ii] = i_dict[ii]
-                            else:
-                                s_dict[ii] += i_dict[ii]
-                    expected_inf = getExpectedInf(s_dict)
-                    ep_g = round(expected_inf * product_list[mep_k_prod][0], 4)
-                    if (now_budget + sc) == 0:
-                        break
-                    else:
-                        mg_g = round(ep_g - expected_profit_k[mep_k_prod], 4)
-                        mg_seed_ratio_g = round(mg_g / (now_budget + sc), 4)
-                    flag_g = seed_set_length
-
-                    if mg_seed_ratio_g > 0:
-                        celf_item_g = (mg_seed_ratio_g, mep_k_prod, mep_i_node, flag_g)
-                        heap.heappush_max(celf_heap, celf_item_g)
-
-                mep_item = heap.heappop_max(celf_heap)
-                mep_seed_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
-
-            print('ss_time = ' + str(round(time.time() - ss_strat_time, 2)) + 'sec')
-            seed_set_sequence.append(seed_set)
-
-        ss_time = round(time.time() - ss_strat_time, 2)
+        ss_time = round(time.time() - ss_start_time, 2)
         eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for wallet_distribution_type in self.wd_seq:
             for ppp in self.ppp_seq:
                 eva_model.evaluate(wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_hd(self):
-        ss_strat_time = time.time()
+        ss_start_time = time.time()
         model_name = 'mhd'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
@@ -481,17 +260,17 @@ class Model:
                 mep_item = selectDegreeSeed(degree_dict)
                 mep_k_prod, mep_i_node = mep_item
 
-            print('ss_time = ' + str(round(time.time() - ss_strat_time, 2)) + 'sec')
+            print('ss_time = ' + str(round(time.time() - ss_start_time, 2)) + 'sec')
             seed_set_sequence.append(seed_set)
 
-        ss_time = round(time.time() - ss_strat_time, 2)
+        ss_time = round(time.time() - ss_start_time, 2)
         eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for wallet_distribution_type in self.wd_seq:
             for ppp in self.ppp_seq:
                 eva_model.evaluate(wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_hed(self):
-        ss_strat_time = time.time()
+        ss_start_time = time.time()
         model_name = 'mhed'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
@@ -527,17 +306,17 @@ class Model:
                 mep_item = selectDegreeSeed(degree_dict)
                 mep_k_prod, mep_i_node = mep_item
 
-            print('ss_time = ' + str(round(time.time() - ss_strat_time, 2)) + 'sec')
+            print('ss_time = ' + str(round(time.time() - ss_start_time, 2)) + 'sec')
             seed_set_sequence.append(seed_set)
 
-        ss_time = round(time.time() - ss_strat_time, 2)
+        ss_time = round(time.time() - ss_start_time, 2)
         eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for wallet_distribution_type in self.wd_seq:
             for ppp in self.ppp_seq:
                 eva_model.evaluate(wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_pmis(self):
-        ss_strat_time = time.time()
+        ss_start_time = time.time()
         model_name = 'mpmis'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
@@ -641,17 +420,17 @@ class Model:
                 bud_index[pointer] -= 1
             seed_set = mep_result[1]
 
-            print('ss_time = ' + str(round(time.time() - ss_strat_time, 2)) + 'sec')
+            print('ss_time = ' + str(round(time.time() - ss_start_time, 2)) + 'sec')
             seed_set_sequence.append(seed_set)
 
-        ss_time = round(time.time() - ss_strat_time, 2)
+        ss_time = round(time.time() - ss_start_time, 2)
         eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for wallet_distribution_type in self.wd_seq:
             for ppp in self.ppp_seq:
                 eva_model.evaluate(wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_r(self):
-        ss_strat_time = time.time()
+        ss_start_time = time.time()
         model_name = 'mr'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
@@ -687,10 +466,258 @@ class Model:
                 mep_item = selectRandomSeed(random_node_set)
                 mep_k_prod, mep_i_node = mep_item
 
-            print('ss_time = ' + str(round(time.time() - ss_strat_time, 2)) + 'sec')
+            print('ss_time = ' + str(round(time.time() - ss_start_time, 2)) + 'sec')
             seed_set_sequence.append(seed_set)
 
-        ss_time = round(time.time() - ss_strat_time, 2)
+        ss_time = round(time.time() - ss_start_time, 2)
+        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
+        for wallet_distribution_type in self.wd_seq:
+            for ppp in self.ppp_seq:
+                eva_model.evaluate(wallet_distribution_type, ppp, seed_set_sequence)
+
+
+class ModelAP:
+    def __init__(self, dataset_name, product_name, cascade_model):
+        self.dataset_name = dataset_name
+        self.product_name = product_name
+        self.cascade_model = cascade_model
+        self.wd_seq = ['m50e25', 'm99e96']
+        self.total_budget = 10
+        self.wpiwp = bool(1)
+        self.sample_number = 1
+        self.ppp_seq = [2, 3]
+        self.monte_carlo = 10
+        self.batch = 20
+
+    def model_ngap(self):
+        ss_start_time = time.time()
+        model_name = 'mngap'
+        iniG = IniGraph(self.dataset_name)
+        iniP = IniProduct(self.product_name)
+
+        seed_cost_dict = iniG.constructSeedCostDict()
+        graph_dict = iniG.constructGraphDict(self.cascade_model)
+        product_list = iniP.getProductList()
+        num_product = len(product_list)
+
+        seed_set_sequence = []
+        ssngap_model = SeedSelectionNGAP(graph_dict, seed_cost_dict, product_list)
+        diffap_model = DiffusionAccProb(graph_dict, seed_cost_dict, product_list)
+        for sample_count in range(self.sample_number):
+            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+                  ', sample_count = ' + str(sample_count))
+            now_budget, now_profit = 0.0, 0.0
+            seed_set = [set() for _ in range(num_product)]
+            expected_profit_k = [0.0 for _ in range(num_product)]
+            searching_times = 0
+
+            celf_heap = ssngap_model.generateCelfHeap()
+            print(round(time.time() - start_time, 4))
+            mep_item = heap.heappop_max(celf_heap)
+            mep_mg, mep_k_prod, mep_i_node, mep_flag = mep_item
+
+            while now_budget < self.total_budget and mep_i_node != '-1':
+                searching_times += 1
+                sc = seed_cost_dict[mep_i_node]
+                seed_set_length = sum(len(seed_set[kk]) for kk in range(num_product))
+                if round(now_budget + sc, 4) > self.total_budget:
+                    mep_item = heap.heappop_max(celf_heap)
+                    mep_mg, mep_k_prod, mep_i_node, mep_flag = mep_item
+                    if mep_i_node == '-1':
+                        break
+                    continue
+
+                if mep_flag == seed_set_length:
+                    searching_times = 0
+                    seed_set[mep_k_prod].add(mep_i_node)
+                    now_profit = round(now_profit + mep_mg, 4)
+                    now_budget = round(now_budget + sc, 4)
+                    expected_profit_k[mep_k_prod] = round(expected_profit_k[mep_k_prod] + mep_mg, 4)
+                else:
+                    mep_item_sequence = [mep_item]
+                    while len(mep_item_seqence) < batch and celf_heap[0][3] != seed_set_length and celf_heap[0][2] != '-1':
+                        searching_times += 1
+                        mep_item = heap.heappop_max(celf_heap)
+                        mep_item_seqence.append(mep_item)
+                    mep_item_sequence_dict = diffap_model.getExpectedProfitDictBatch(seed_set, mep_item_sequence)
+                    for midl in range(len(mep_item_sequence_dict)):
+                        k_prod_g = mep_item_sequence[midl][1]
+                        i_node_g = mep_item_sequence[midl][2]
+                        s_dict = mep_item_dict[midl]
+                        expected_inf = getExpectedInf(s_dict)
+                        ep_g = round(expected_inf * product_list[k_prod_g][0], 4)
+                        mg_g = round(ep_g - expected_profit_k[k_prod_g], 4)
+                        flag_g = seed_set_length
+
+                        if mg_g > 0:
+                            celf_item_g = (mg_g, k_prod_g, i_node_g, flag_g)
+                            heap.heappush_max(celf_heap, celf_item_g)
+
+                mep_item = heap.heappop_max(celf_heap)
+                mep_mg, mep_k_prod, mep_i_node, mep_flag = mep_item
+
+            print('ss_time = ' + str(round(time.time() - ss_start_time, 2)) + 'sec')
+            seed_set_sequence.append(seed_set)
+
+        ss_time = round(time.time() - ss_start_time, 2)
+        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
+        for wallet_distribution_type in self.wd_seq:
+            for ppp in self.ppp_seq:
+                eva_model.evaluate(wallet_distribution_type, ppp, seed_set_sequence)
+
+    def model_ngapr(self):
+        ss_start_time = time.time()
+        model_name = 'mngapr'
+        iniG = IniGraph(self.dataset_name)
+        iniP = IniProduct(self.product_name)
+
+        seed_cost_dict = iniG.constructSeedCostDict()
+        graph_dict = iniG.constructGraphDict(self.cascade_model)
+        product_list = iniP.getProductList()
+        num_product = len(product_list)
+
+        seed_set_sequence = []
+        ssngap_model = SeedSelectionNGAP(graph_dict, seed_cost_dict, product_list)
+        diffap_model = DiffusionAccProb(graph_dict, seed_cost_dict, product_list)
+        for sample_count in range(self.sample_number):
+            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+                  ', sample_count = ' + str(sample_count))
+            now_budget, now_profit = 0.0, 0.0
+            seed_set = [set() for _ in range(num_product)]
+            expected_profit_k = [0.0 for _ in range(num_product)]
+            searching_times = 0
+
+            celf_heap = ssngap_model.generateCelfHeapR()
+            mep_item = heap.heappop_max(celf_heap)
+            mep_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
+
+            while now_budget < self.total_budget and mep_i_node != '-1':
+                searching_times += 1
+                sc = seed_cost_dict[mep_i_node]
+                seed_set_length = sum(len(seed_set[kk]) for kk in range(num_product))
+                if round(now_budget + sc, 4) > self.total_budget:
+                    mep_item = heap.heappop_max(celf_heap)
+                    mep_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
+                    if mep_i_node == '-1':
+                        break
+                    continue
+
+                if mep_flag == seed_set_length:
+                    searching_times = 0
+                    seed_set[mep_k_prod].add(mep_i_node)
+                    now_profit = round(now_profit + mep_ratio * sc, 4)
+                    now_budget = round(now_budget + sc, 4)
+                    expected_profit_k[mep_k_prod] = round(expected_profit_k[mep_k_prod] + mep_ratio * sc, 4)
+                else:
+                    mep_item_sequence = [mep_item]
+                    while len(mep_item_seqence) < batch and celf_heap[0][3] != seed_set_length and celf_heap[0][2] != '-1':
+                        searching_times += 1
+                        mep_item = heap.heappop_max(celf_heap)
+                        mep_item_seqence.append(mep_item)
+                    mep_item_sequence_dict = diffap_model.getExpectedProfitDictBatch(seed_set, mep_item_sequence)
+                    for midl in range(len(mep_item_sequence_dict)):
+                        k_prod_g = mep_item_sequence[midl][1]
+                        i_node_g = mep_item_sequence[midl][2]
+                        s_dict = mep_item_dict[midl]
+                        expected_inf = getExpectedInf(s_dict)
+                        ep_g = round(expected_inf * product_list[k_prod_g][0], 4)
+                        if seed_cost_dict[i_node_g] == 0:
+                            break
+                        else:
+                            mg_g = round(ep_g - expected_profit_k[k_prod_g], 4)
+                            mg_ratio_g = round(mg_g / seed_cost_dict[i_node_g], 4)
+                        flag_g = seed_set_length
+
+                        if mg_ratio_g > 0:
+                            celf_item_g = (mg_ratio_g, k_prod_g, i_node_g, flag_g)
+                            heap.heappush_max(celf_heap, celf_item_g)
+
+                mep_item = heap.heappop_max(celf_heap)
+                mep_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
+
+            print('ss_time = ' + str(round(time.time() - ss_start_time, 2)) + 'sec')
+            seed_set_sequence.append(seed_set)
+
+        ss_time = round(time.time() - ss_start_time, 2)
+        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
+        for wallet_distribution_type in self.wd_seq:
+            for ppp in self.ppp_seq:
+                eva_model.evaluate(wallet_distribution_type, ppp, seed_set_sequence)
+
+    def model_ngapsr(self):
+        ss_start_time = time.time()
+        model_name = 'mngapsr'
+        iniG = IniGraph(self.dataset_name)
+        iniP = IniProduct(self.product_name)
+
+        seed_cost_dict = iniG.constructSeedCostDict()
+        graph_dict = iniG.constructGraphDict(self.cascade_model)
+        product_list = iniP.getProductList()
+        num_product = len(product_list)
+
+        seed_set_sequence = []
+        ssngap_model = SeedSelectionNGAP(graph_dict, seed_cost_dict, product_list)
+        diffap_model = DiffusionAccProb(graph_dict, seed_cost_dict, product_list)
+        for sample_count in range(self.sample_number):
+            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+                  ', sample_count = ' + str(sample_count))
+            now_budget, now_profit = 0.0, 0.0
+            seed_set = [set() for _ in range(num_product)]
+            expected_profit_k = [0.0 for _ in range(num_product)]
+            searching_times = 0
+
+            celf_heap = ssngap_model.generateCelfHeapR()
+            mep_item = heap.heappop_max(celf_heap)
+            mep_seed_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
+
+            while now_budget < self.total_budget and mep_i_node != '-1':
+                searching_times += 1
+                sc = seed_cost_dict[mep_i_node]
+                seed_set_length = sum(len(seed_set[kk]) for kk in range(num_product))
+                if round(now_budget + sc, 4) > self.total_budget:
+                    mep_item = heap.heappop_max(celf_heap)
+                    mep_seed_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
+                    if mep_i_node == '-1':
+                        break
+                    continue
+
+                if mep_flag == seed_set_length:
+                    searching_times = 0
+                    seed_set[mep_k_prod].add(mep_i_node)
+                    now_profit = round(now_profit + mep_seed_ratio * (now_budget + sc), 4)
+                    now_budget = round(now_budget + sc, 4)
+                    expected_profit_k[mep_k_prod] = round(expected_profit_k[mep_k_prod] + mep_seed_ratio * now_budget, 4)
+                else:
+                    mep_item_sequence = [mep_item]
+                    while len(mep_item_seqence) < batch and celf_heap[0][3] != seed_set_length and celf_heap[0][2] != '-1':
+                        searching_times += 1
+                        mep_item = heap.heappop_max(celf_heap)
+                        mep_item_seqence.append(mep_item)
+                    mep_item_sequence_dict = diffap_model.getExpectedProfitDictBatch(seed_set, mep_item_sequence)
+                    for midl in range(len(mep_item_sequence_dict)):
+                        k_prod_g = mep_item_sequence[midl][1]
+                        i_node_g = mep_item_sequence[midl][2]
+                        s_dict = mep_item_dict[midl]
+                        expected_inf = getExpectedInf(s_dict)
+                        ep_g = round(expected_inf * product_list[k_prod_g][0], 4)
+                        if (now_budget + seed_cost_dict[i_node_g]) == 0:
+                            break
+                        else:
+                            mg_g = round(ep_g - expected_profit_k[k_prod_g], 4)
+                            mg_seed_ratio_g = round(mg_g / (now_budget + seed_cost_dict[i_node_g]), 4)
+                        flag_g = seed_set_length
+
+                        if mg_seed_ratio_g > 0:
+                            celf_item_g = (mg_seed_ratio_g, k_prod_g, i_node_g, flag_g)
+                            heap.heappush_max(celf_heap, celf_item_g)
+
+                mep_item = heap.heappop_max(celf_heap)
+                mep_seed_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
+
+            print('ss_time = ' + str(round(time.time() - ss_start_time, 2)) + 'sec')
+            seed_set_sequence.append(seed_set)
+
+        ss_time = round(time.time() - ss_start_time, 2)
         eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for wallet_distribution_type in self.wd_seq:
             for ppp in self.ppp_seq:
@@ -710,7 +737,7 @@ class ModelPW:
         self.monte_carlo = 10
 
     def model_ngpw(self):
-        ss_strat_time = time.time()
+        ss_start_time = time.time()
         model_name = 'mngpw'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
@@ -767,16 +794,16 @@ class ModelPW:
                 mep_item = heap.heappop_max(celf_heap)
                 mep_mg, mep_k_prod, mep_i_node, mep_flag = mep_item
 
-            print('ss_time = ' + str(round(time.time() - ss_strat_time, 2)) + 'sec')
+            print('ss_time = ' + str(round(time.time() - ss_start_time, 2)) + 'sec')
             seed_set_sequence.append(seed_set)
 
-        ss_time = round(time.time() - ss_strat_time, 2)
+        ss_time = round(time.time() - ss_start_time, 2)
         eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for ppp in self.ppp_seq:
             eva_model.evaluate(self.wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_ngrpw(self):
-        ss_strat_time = time.time()
+        ss_start_time = time.time()
         model_name = 'mngrpw'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
@@ -837,16 +864,16 @@ class ModelPW:
                 mep_item = heap.heappop_max(celf_heap)
                 mep_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
 
-            print('ss_time = ' + str(round(time.time() - ss_strat_time, 2)) + 'sec')
+            print('ss_time = ' + str(round(time.time() - ss_start_time, 2)) + 'sec')
             seed_set_sequence.append(seed_set)
 
-        ss_time = round(time.time() - ss_strat_time, 2)
+        ss_time = round(time.time() - ss_start_time, 2)
         eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for ppp in self.ppp_seq:
             eva_model.evaluate(self.wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_ngsrpw(self):
-        ss_strat_time = time.time()
+        ss_start_time = time.time()
         model_name = 'mngsrpw'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
@@ -907,237 +934,16 @@ class ModelPW:
                 mep_item = heap.heappop_max(celf_heap)
                 mep_seed_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
 
-            print('ss_time = ' + str(round(time.time() - ss_strat_time, 2)) + 'sec')
+            print('ss_time = ' + str(round(time.time() - ss_start_time, 2)) + 'sec')
             seed_set_sequence.append(seed_set)
 
-        ss_time = round(time.time() - ss_strat_time, 2)
-        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
-        for ppp in self.ppp_seq:
-            eva_model.evaluate(self.wallet_distribution_type, ppp, seed_set_sequence)
-
-    def model_ngappw(self):
-        ss_strat_time = time.time()
-        model_name = 'mngappw'
-        iniG = IniGraph(self.dataset_name)
-        iniP = IniProduct(self.product_name)
-
-        seed_cost_dict = iniG.constructSeedCostDict()
-        graph_dict = iniG.constructGraphDict(self.cascade_model)
-        product_list = iniP.getProductList()
-        num_product = len(product_list)
-        product_weight_list = getProductWeight(product_list, self.wallet_distribution_type)
-
-        seed_set_sequence = []
-        ssngappw_model = SeedSelectionNGAPPW(graph_dict, seed_cost_dict, product_list, product_weight_list)
-        diffap_model = DiffusionAccProb(graph_dict, seed_cost_dict, product_list)
-        for sample_count in range(self.sample_number):
-            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
-                  ', wd = ' + str(self.wallet_distribution_type) + ', sample_count = ' + str(sample_count))
-            now_budget, now_profit = 0.0, 0.0
-            seed_set = [set() for _ in range(num_product)]
-            expected_profit_k = [0.0 for _ in range(num_product)]
-            celf_heap = ssngappw_model.generateCelfHeap()
-            mep_item = heap.heappop_max(celf_heap)
-            mep_mg, mep_k_prod, mep_i_node, mep_flag = mep_item
-
-            while now_budget < self.total_budget and mep_i_node != '-1':
-                sc = seed_cost_dict[mep_i_node]
-                seed_set_length = sum(len(seed_set[kk]) for kk in range(num_product))
-                if round(now_budget + sc, 4) > self.total_budget:
-                    mep_item = heap.heappop_max(celf_heap)
-                    mep_mg, mep_k_prod, mep_i_node, mep_flag = mep_item
-                    if mep_i_node == '-1':
-                        break
-                    continue
-
-                if mep_flag == seed_set_length:
-                    seed_set[mep_k_prod].add(mep_i_node)
-                    now_profit = round(now_profit + mep_mg, 4)
-                    now_budget = round(now_budget + sc, 4)
-                    expected_profit_k[mep_k_prod] = round(expected_profit_k[mep_k_prod] + mep_mg, 4)
-                else:
-                    seed_set_k = copy.deepcopy(seed_set[mep_k_prod])
-                    seed_set_k.add(mep_i_node)
-                    s_dict = {}
-                    for s in seed_set_k:
-                        i_dict = diffap_model.buildNodeDict(seed_set_k, s, 1)
-                        for ii in i_dict:
-                            if ii not in s_dict:
-                                s_dict[ii] = i_dict[ii]
-                            else:
-                                s_dict[ii] += i_dict[ii]
-                    expected_inf = getExpectedInf(s_dict)
-                    ep_g = round(expected_inf * product_list[mep_k_prod][0] * product_weight_list[mep_k_prod], 4)
-                    mg_g = round(ep_g - expected_profit_k[mep_k_prod], 4)
-                    flag_g = seed_set_length
-
-                    if mg_g > 0:
-                        celf_item_g = (mg_g, mep_k_prod, mep_i_node, flag_g)
-                        heap.heappush_max(celf_heap, celf_item_g)
-
-                mep_item = heap.heappop_max(celf_heap)
-                mep_mg, mep_k_prod, mep_i_node, mep_flag = mep_item
-
-            print('ss_time = ' + str(round(time.time() - ss_strat_time, 2)) + 'sec')
-            seed_set_sequence.append(seed_set)
-
-        ss_time = round(time.time() - ss_strat_time, 2)
-        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
-        for ppp in self.ppp_seq:
-            eva_model.evaluate(self.wallet_distribution_type, ppp, seed_set_sequence)
-
-    def model_ngaprpw(self):
-        ss_strat_time = time.time()
-        model_name = 'mngaprpw'
-        iniG = IniGraph(self.dataset_name)
-        iniP = IniProduct(self.product_name)
-
-        seed_cost_dict = iniG.constructSeedCostDict()
-        graph_dict = iniG.constructGraphDict(self.cascade_model)
-        product_list = iniP.getProductList()
-        num_product = len(product_list)
-        product_weight_list = getProductWeight(product_list, self.wallet_distribution_type)
-
-        seed_set_sequence = []
-        ssngappw_model = SeedSelectionNGAPPW(graph_dict, seed_cost_dict, product_list, product_weight_list)
-        diffap_model = DiffusionAccProb(graph_dict, seed_cost_dict, product_list)
-        for sample_count in range(self.sample_number):
-            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
-                  ', wd = ' + str(self.wallet_distribution_type) + ', sample_count = ' + str(sample_count))
-            now_budget, now_profit = 0.0, 0.0
-            seed_set = [set() for _ in range(num_product)]
-            expected_profit_k = [0.0 for _ in range(num_product)]
-            celf_heap = ssngappw_model.generateCelfHeapR()
-            mep_item = heap.heappop_max(celf_heap)
-            mep_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
-
-            while now_budget < self.total_budget and mep_i_node != '-1':
-                sc = seed_cost_dict[mep_i_node]
-                seed_set_length = sum(len(seed_set[kk]) for kk in range(num_product))
-                if round(now_budget + sc, 4) > self.total_budget:
-                    mep_item = heap.heappop_max(celf_heap)
-                    mep_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
-                    if mep_i_node == '-1':
-                        break
-                    continue
-
-                if mep_flag == seed_set_length:
-                    seed_set[mep_k_prod].add(mep_i_node)
-                    now_profit = round(now_profit + mep_ratio * sc, 4)
-                    now_budget = round(now_budget + sc, 4)
-                    expected_profit_k[mep_k_prod] = round(expected_profit_k[mep_k_prod] + mep_ratio * sc, 4)
-                else:
-                    seed_set_k = copy.deepcopy(seed_set[mep_k_prod])
-                    seed_set_k.add(mep_i_node)
-                    s_dict = {}
-                    for s in seed_set_k:
-                        i_dict = diffap_model.buildNodeDict(seed_set_k, s, 1)
-                        for ii in i_dict:
-                            if ii not in s_dict:
-                                s_dict[ii] = i_dict[ii]
-                            else:
-                                s_dict[ii] += i_dict[ii]
-                    expected_inf = getExpectedInf(s_dict)
-                    ep_g = round(expected_inf * product_list[mep_k_prod][0] * product_weight_list[mep_k_prod], 4)
-                    if sc == 0:
-                        break
-                    else:
-                        mg_g = round(ep_g - expected_profit_k[mep_k_prod], 4)
-                        mg_ratio_g = round(mg_g / sc, 4)
-                    flag_g = seed_set_length
-
-                    if mg_ratio_g > 0:
-                        celf_item_g = (mg_ratio_g, mep_k_prod, mep_i_node, flag_g)
-                        heap.heappush_max(celf_heap, celf_item_g)
-
-                mep_item = heap.heappop_max(celf_heap)
-                mep_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
-
-            print('ss_time = ' + str(round(time.time() - ss_strat_time, 2)) + 'sec')
-            seed_set_sequence.append(seed_set)
-
-        ss_time = round(time.time() - ss_strat_time, 2)
-        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
-        for ppp in self.ppp_seq:
-            eva_model.evaluate(self.wallet_distribution_type, ppp, seed_set_sequence)
-
-    def model_ngapsrpw(self):
-        ss_strat_time = time.time()
-        model_name = 'mngapsrpw'
-        iniG = IniGraph(self.dataset_name)
-        iniP = IniProduct(self.product_name)
-
-        seed_cost_dict = iniG.constructSeedCostDict()
-        graph_dict = iniG.constructGraphDict(self.cascade_model)
-        product_list = iniP.getProductList()
-        num_product = len(product_list)
-        product_weight_list = getProductWeight(product_list, self.wallet_distribution_type)
-
-        seed_set_sequence = []
-        ssngappw_model = SeedSelectionNGAPPW(graph_dict, seed_cost_dict, product_list, product_weight_list)
-        diffap_model = DiffusionAccProb(graph_dict, seed_cost_dict, product_list)
-        for sample_count in range(self.sample_number):
-            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
-                  ', wd = ' + str(self.wallet_distribution_type) + ', sample_count = ' + str(sample_count))
-            now_budget, now_profit = 0.0, 0.0
-            seed_set = [set() for _ in range(num_product)]
-            expected_profit_k = [0.0 for _ in range(num_product)]
-            celf_heap = ssngappw_model.generateCelfHeapR()
-            mep_item = heap.heappop_max(celf_heap)
-            mep_seed_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
-
-            while now_budget < self.total_budget and mep_i_node != '-1':
-                sc = seed_cost_dict[mep_i_node]
-                seed_set_length = sum(len(seed_set[kk]) for kk in range(num_product))
-                if round(now_budget + sc, 4) > self.total_budget:
-                    mep_item = heap.heappop_max(celf_heap)
-                    mep_seed_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
-                    if mep_i_node == '-1':
-                        break
-                    continue
-
-                if mep_flag == seed_set_length:
-                    seed_set[mep_k_prod].add(mep_i_node)
-                    now_profit = round(now_profit + mep_seed_ratio * (now_budget + sc), 4)
-                    now_budget = round(now_budget + sc, 4)
-                    expected_profit_k[mep_k_prod] = round(expected_profit_k[mep_k_prod] + mep_seed_ratio * now_budget, 4)
-                else:
-                    seed_set_k = copy.deepcopy(seed_set[mep_k_prod])
-                    seed_set_k.add(mep_i_node)
-                    s_dict = {}
-                    for s in seed_set_k:
-                        i_dict = diffap_model.buildNodeDict(seed_set_k, s, 1)
-                        for ii in i_dict:
-                            if ii not in s_dict:
-                                s_dict[ii] = i_dict[ii]
-                            else:
-                                s_dict[ii] += i_dict[ii]
-                    expected_inf = getExpectedInf(s_dict)
-                    ep_g = round(expected_inf * product_list[mep_k_prod][0] * product_weight_list[mep_k_prod], 4)
-                    if (now_budget + sc) == 0:
-                        break
-                    else:
-                        mg_g = round(ep_g - expected_profit_k[mep_k_prod], 4)
-                        mg_seed_ratio_g = round(mg_g / (now_budget + sc), 4)
-                    flag_g = seed_set_length
-
-                    if mg_seed_ratio_g > 0:
-                        celf_item_g = (mg_seed_ratio_g, mep_k_prod, mep_i_node, flag_g)
-                        heap.heappush_max(celf_heap, celf_item_g)
-
-                mep_item = heap.heappop_max(celf_heap)
-                mep_seed_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
-
-            print('ss_time = ' + str(round(time.time() - ss_strat_time, 2)) + 'sec')
-            seed_set_sequence.append(seed_set)
-
-        ss_time = round(time.time() - ss_strat_time, 2)
+        ss_time = round(time.time() - ss_start_time, 2)
         eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for ppp in self.ppp_seq:
             eva_model.evaluate(self.wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_hdpw(self):
-        ss_strat_time = time.time()
+        ss_start_time = time.time()
         model_name = 'mhdpw'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
@@ -1174,16 +980,16 @@ class ModelPW:
                 mep_item = selectDegreeSeed(degree_dict)
                 mep_k_prod, mep_i_node = mep_item
 
-            print('ss_time = ' + str(round(time.time() - ss_strat_time, 2)) + 'sec')
+            print('ss_time = ' + str(round(time.time() - ss_start_time, 2)) + 'sec')
             seed_set_sequence.append(seed_set)
 
-        ss_time = round(time.time() - ss_strat_time, 2)
+        ss_time = round(time.time() - ss_start_time, 2)
         eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for ppp in self.ppp_seq:
             eva_model.evaluate(self.wallet_distribution_type, ppp, seed_set_sequence)
 
     def model_hedpw(self):
-        ss_strat_time = time.time()
+        ss_start_time = time.time()
         model_name = 'mhedpw'
         iniG = IniGraph(self.dataset_name)
         iniP = IniProduct(self.product_name)
@@ -1220,10 +1026,253 @@ class ModelPW:
                 mep_item = selectDegreeSeed(degree_dict)
                 mep_k_prod, mep_i_node = mep_item
 
-            print('ss_time = ' + str(round(time.time() - ss_strat_time, 2)) + 'sec')
+            print('ss_time = ' + str(round(time.time() - ss_start_time, 2)) + 'sec')
             seed_set_sequence.append(seed_set)
 
-        ss_time = round(time.time() - ss_strat_time, 2)
+        ss_time = round(time.time() - ss_start_time, 2)
+        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
+        for ppp in self.ppp_seq:
+            eva_model.evaluate(self.wallet_distribution_type, ppp, seed_set_sequence)
+
+
+class ModelAPPW:
+    def __init__(self, dataset_name, product_name, cascade_model, wallet_distribution_type):
+        self.dataset_name = dataset_name
+        self.product_name = product_name
+        self.cascade_model = cascade_model
+        self.wallet_distribution_type = wallet_distribution_type
+        self.total_budget = 10
+        self.wpiwp = bool(1)
+        self.sample_number = 1
+        self.ppp_seq = [2, 3]
+        self.monte_carlo = 10
+
+    def model_ngappw(self):
+        ss_start_time = time.time()
+        model_name = 'mngappw'
+        iniG = IniGraph(self.dataset_name)
+        iniP = IniProduct(self.product_name)
+
+        seed_cost_dict = iniG.constructSeedCostDict()
+        graph_dict = iniG.constructGraphDict(self.cascade_model)
+        product_list = iniP.getProductList()
+        num_product = len(product_list)
+        product_weight_list = getProductWeight(product_list, self.wallet_distribution_type)
+
+        seed_set_sequence = []
+        ssngappw_model = SeedSelectionNGAPPW(graph_dict, seed_cost_dict, product_list, product_weight_list)
+        diffap_model = DiffusionAccProb(graph_dict, seed_cost_dict, product_list)
+        for sample_count in range(self.sample_number):
+            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+                  ', wd = ' + str(self.wallet_distribution_type) + ', sample_count = ' + str(sample_count))
+            now_budget, now_profit = 0.0, 0.0
+            seed_set = [set() for _ in range(num_product)]
+            expected_profit_k = [0.0 for _ in range(num_product)]
+            searching_times = 0
+
+            celf_heap = ssngappw_model.generateCelfHeap()
+            mep_item = heap.heappop_max(celf_heap)
+            mep_mg, mep_k_prod, mep_i_node, mep_flag = mep_item
+
+            while now_budget < self.total_budget and mep_i_node != '-1':
+                searching_times += 1
+                sc = seed_cost_dict[mep_i_node]
+                seed_set_length = sum(len(seed_set[kk]) for kk in range(num_product))
+                if round(now_budget + sc, 4) > self.total_budget:
+                    mep_item = heap.heappop_max(celf_heap)
+                    mep_mg, mep_k_prod, mep_i_node, mep_flag = mep_item
+                    if mep_i_node == '-1':
+                        break
+                    continue
+
+                if mep_flag == seed_set_length:
+                    searching_times = 0
+                    seed_set[mep_k_prod].add(mep_i_node)
+                    now_profit = round(now_profit + mep_mg, 4)
+                    now_budget = round(now_budget + sc, 4)
+                    expected_profit_k[mep_k_prod] = round(expected_profit_k[mep_k_prod] + mep_mg, 4)
+                else:
+                    mep_item_sequence = [mep_item]
+                    while len(mep_item_seqence) < batch and celf_heap[0][3] != seed_set_length and celf_heap[0][2] != '-1':
+                        searching_times += 1
+                        mep_item = heap.heappop_max(celf_heap)
+                        mep_item_seqence.append(mep_item)
+                    mep_item_sequence_dict = diffap_model.getExpectedProfitDictBatch(seed_set, mep_item_sequence)
+                    for midl in range(len(mep_item_sequence_dict)):
+                        k_prod_g = mep_item_sequence[midl][1]
+                        i_node_g = mep_item_sequence[midl][2]
+                        s_dict = mep_item_dict[midl]
+                        expected_inf = getExpectedInf(s_dict)
+                        ep_g = round(expected_inf * product_list[k_prod_g][0] * product_weight_list[k_prod_g], 4)
+                        mg_g = round(ep_g - expected_profit_k[k_prod_g], 4)
+                        flag_g = seed_set_length
+
+                        if mg_g > 0:
+                            celf_item_g = (mg_g, k_prod_g, i_node_g, flag_g)
+                            heap.heappush_max(celf_heap, celf_item_g)
+
+                mep_item = heap.heappop_max(celf_heap)
+                mep_mg, mep_k_prod, mep_i_node, mep_flag = mep_item
+
+            print('ss_time = ' + str(round(time.time() - ss_start_time, 2)) + 'sec')
+            seed_set_sequence.append(seed_set)
+
+        ss_time = round(time.time() - ss_start_time, 2)
+        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
+        for ppp in self.ppp_seq:
+            eva_model.evaluate(self.wallet_distribution_type, ppp, seed_set_sequence)
+
+    def model_ngaprpw(self):
+        ss_start_time = time.time()
+        model_name = 'mngaprpw'
+        iniG = IniGraph(self.dataset_name)
+        iniP = IniProduct(self.product_name)
+
+        seed_cost_dict = iniG.constructSeedCostDict()
+        graph_dict = iniG.constructGraphDict(self.cascade_model)
+        product_list = iniP.getProductList()
+        num_product = len(product_list)
+        product_weight_list = getProductWeight(product_list, self.wallet_distribution_type)
+
+        seed_set_sequence = []
+        ssngappw_model = SeedSelectionNGAPPW(graph_dict, seed_cost_dict, product_list, product_weight_list)
+        diffap_model = DiffusionAccProb(graph_dict, seed_cost_dict, product_list)
+        for sample_count in range(self.sample_number):
+            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+                  ', wd = ' + str(self.wallet_distribution_type) + ', sample_count = ' + str(sample_count))
+            now_budget, now_profit = 0.0, 0.0
+            seed_set = [set() for _ in range(num_product)]
+            expected_profit_k = [0.0 for _ in range(num_product)]
+            searching_times = 0
+
+            celf_heap = ssngappw_model.generateCelfHeapR()
+            mep_item = heap.heappop_max(celf_heap)
+            mep_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
+
+            while now_budget < self.total_budget and mep_i_node != '-1':
+                searching_times += 1
+                sc = seed_cost_dict[mep_i_node]
+                seed_set_length = sum(len(seed_set[kk]) for kk in range(num_product))
+                if round(now_budget + sc, 4) > self.total_budget:
+                    mep_item = heap.heappop_max(celf_heap)
+                    mep_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
+                    if mep_i_node == '-1':
+                        break
+                    continue
+
+                if mep_flag == seed_set_length:
+                    searching_times = 0
+                    seed_set[mep_k_prod].add(mep_i_node)
+                    now_profit = round(now_profit + mep_ratio * sc, 4)
+                    now_budget = round(now_budget + sc, 4)
+                    expected_profit_k[mep_k_prod] = round(expected_profit_k[mep_k_prod] + mep_ratio * sc, 4)
+                else:
+                    mep_item_sequence = [mep_item]
+                    while len(mep_item_seqence) < batch and celf_heap[0][3] != seed_set_length and celf_heap[0][2] != '-1':
+                        searching_times += 1
+                        mep_item = heap.heappop_max(celf_heap)
+                        mep_item_seqence.append(mep_item)
+                    mep_item_sequence_dict = diffap_model.getExpectedProfitDictBatch(seed_set, mep_item_sequence)
+                    for midl in range(len(mep_item_sequence_dict)):
+                        k_prod_g = mep_item_sequence[midl][1]
+                        i_node_g = mep_item_sequence[midl][2]
+                        s_dict = mep_item_dict[midl]
+                        expected_inf = getExpectedInf(s_dict)
+                        ep_g = round(expected_inf * product_list[k_prod_g][0] * product_weight_list[k_prod_g], 4)
+                        if seed_cost_dict[i_node_g] == 0:
+                            break
+                        else:
+                            mg_g = round(ep_g - expected_profit_k[k_prod_g], 4)
+                            mg_ratio_g = round(mg_g / seed_cost_dict[i_node_g], 4)
+                        flag_g = seed_set_length
+
+                        if mg_ratio_g > 0:
+                            celf_item_g = (mg_ratio_g, k_prod_g, i_node_g, flag_g)
+                            heap.heappush_max(celf_heap, celf_item_g)
+
+            print('ss_time = ' + str(round(time.time() - ss_start_time, 2)) + 'sec')
+            seed_set_sequence.append(seed_set)
+
+        ss_time = round(time.time() - ss_start_time, 2)
+        eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
+        for ppp in self.ppp_seq:
+            eva_model.evaluate(self.wallet_distribution_type, ppp, seed_set_sequence)
+
+    def model_ngapsrpw(self):
+        ss_start_time = time.time()
+        model_name = 'mngapsrpw'
+        iniG = IniGraph(self.dataset_name)
+        iniP = IniProduct(self.product_name)
+
+        seed_cost_dict = iniG.constructSeedCostDict()
+        graph_dict = iniG.constructGraphDict(self.cascade_model)
+        product_list = iniP.getProductList()
+        num_product = len(product_list)
+        product_weight_list = getProductWeight(product_list, self.wallet_distribution_type)
+
+        seed_set_sequence = []
+        ssngappw_model = SeedSelectionNGAPPW(graph_dict, seed_cost_dict, product_list, product_weight_list)
+        diffap_model = DiffusionAccProb(graph_dict, seed_cost_dict, product_list)
+        for sample_count in range(self.sample_number):
+            print('@ ' + model_name + ' seed selection @ dataset_name = ' + self.dataset_name + '_' + self.cascade_model + ', product_name = ' + self.product_name +
+                  ', wd = ' + str(self.wallet_distribution_type) + ', sample_count = ' + str(sample_count))
+            now_budget, now_profit = 0.0, 0.0
+            seed_set = [set() for _ in range(num_product)]
+            expected_profit_k = [0.0 for _ in range(num_product)]
+            searching_times = 0
+
+            celf_heap = ssngappw_model.generateCelfHeapR()
+            mep_item = heap.heappop_max(celf_heap)
+            mep_seed_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
+
+            while now_budget < self.total_budget and mep_i_node != '-1':
+                searching_times += 1
+                sc = seed_cost_dict[mep_i_node]
+                seed_set_length = sum(len(seed_set[kk]) for kk in range(num_product))
+                if round(now_budget + sc, 4) > self.total_budget:
+                    mep_item = heap.heappop_max(celf_heap)
+                    mep_seed_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
+                    if mep_i_node == '-1':
+                        break
+                    continue
+
+                if mep_flag == seed_set_length:
+                    searching_times = 0
+                    seed_set[mep_k_prod].add(mep_i_node)
+                    now_profit = round(now_profit + mep_seed_ratio * (now_budget + sc), 4)
+                    now_budget = round(now_budget + sc, 4)
+                    expected_profit_k[mep_k_prod] = round(expected_profit_k[mep_k_prod] + mep_seed_ratio * now_budget, 4)
+                else:
+                    mep_item_sequence = [mep_item]
+                    while len(mep_item_seqence) < batch and celf_heap[0][3] != seed_set_length and celf_heap[0][2] != '-1':
+                        searching_times += 1
+                        mep_item = heap.heappop_max(celf_heap)
+                        mep_item_seqence.append(mep_item)
+                    mep_item_sequence_dict = diffap_model.getExpectedProfitDictBatch(seed_set, mep_item_sequence)
+                    for midl in range(len(mep_item_sequence_dict)):
+                        k_prod_g = mep_item_sequence[midl][1]
+                        i_node_g = mep_item_sequence[midl][2]
+                        s_dict = mep_item_dict[midl]
+                        expected_inf = getExpectedInf(s_dict)
+                        ep_g = round(expected_inf * product_list[k_prod_g][0] * product_weight_list[k_prod_g], 4)
+                        if (now_budget + seed_cost_dict[i_node_g]) == 0:
+                            break
+                        else:
+                            mg_g = round(ep_g - expected_profit_k[k_prod_g], 4)
+                            mg_seed_ratio_g = round(mg_g / (now_budget + seed_cost_dict[i_node_g]), 4)
+                        flag_g = seed_set_length
+
+                        if mg_seed_ratio_g > 0:
+                            celf_item_g = (mg_seed_ratio_g, k_prod_g, i_node_g, flag_g)
+                            heap.heappush_max(celf_heap, celf_item_g)
+
+                mep_item = heap.heappop_max(celf_heap)
+                mep_seed_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
+
+            print('ss_time = ' + str(round(time.time() - ss_start_time, 2)) + 'sec')
+            seed_set_sequence.append(seed_set)
+
+        ss_time = round(time.time() - ss_start_time, 2)
         eva_model = EvaluationM(model_name, self.dataset_name, self.product_name, self.cascade_model, ss_time)
         for ppp in self.ppp_seq:
             eva_model.evaluate(self.wallet_distribution_type, ppp, seed_set_sequence)
