@@ -13,13 +13,13 @@ if __name__ == '__main__':
             for prod_setting in prod_seq:
                 product_name = 'item_lphc' * (prod_setting == 1) + 'item_hplc' * (prod_setting == 2)
 
-                Model(dataset_name, product_name, cascade_model).model_ngap()
-                Model(dataset_name, product_name, cascade_model).model_ngapr()
-                Model(dataset_name, product_name, cascade_model).model_ngapsr()
+                ModelAP(dataset_name, product_name, cascade_model).model_ngap()
+                ModelAP(dataset_name, product_name, cascade_model).model_ngapr()
+                ModelAP(dataset_name, product_name, cascade_model).model_ngapsr()
 
                 for wd in wd_seq:
                     wallet_distribution_type = 'm50e25' * (wd == 1) + 'm99e96' * (wd == 2)
 
-                    ModelPW(dataset_name, product_name, cascade_model, wallet_distribution_type).model_ngappw()
-                    ModelPW(dataset_name, product_name, cascade_model, wallet_distribution_type).model_ngaprpw()
-                    ModelPW(dataset_name, product_name, cascade_model, wallet_distribution_type).model_ngapsrpw()
+                    ModelAPPW(dataset_name, product_name, cascade_model, wallet_distribution_type).model_ngappw()
+                    ModelAPPW(dataset_name, product_name, cascade_model, wallet_distribution_type).model_ngaprpw()
+                    ModelAPPW(dataset_name, product_name, cascade_model, wallet_distribution_type).model_ngapsrpw()
