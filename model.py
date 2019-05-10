@@ -511,7 +511,7 @@ class ModelAP:
             expected_profit_k = [0.0 for _ in range(num_product)]
             now_seed_forest = [{} for _ in range(num_product)]
 
-            celf_heap, mep = ssngap_model.generateCelfHeap()
+            celf_heap, i_anc_dict, mep = ssngap_model.generateCelfHeap()
             mep_item = heap.heappop_max(celf_heap)
             mep_mg, mep_k_prod, mep_i_node, mep_flag = mep_item
 
@@ -533,11 +533,14 @@ class ModelAP:
                     now_seed_forest[mep_k_prod] = mep[1].copy()
                     mep = (0.0, {})
                 else:
-                    mep_item_sequence = [mep_item]
+                    mep_item_sequence, mep_item_dict_sequence = [mep_item], [i_anc_dict[mep_i_node]]
                     while len(mep_item_sequence) < self.batch and celf_heap[0][3] != seed_set_length and celf_heap[0][2] != '-1':
                         mep_item = heap.heappop_max(celf_heap)
-                        mep_item_sequence.append(mep_item)
-                    mep_item_sequence_dict = diffap_model.getExpectedProfitDictBatch(seed_set, now_seed_forest, mep_item_sequence)
+                        mep_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
+                        if round(now_budget + seed_cost_dict[mep_i_node], 4) <= total_budget:
+                            mep_item_sequence.append(mep_item)
+                            mep_item_dict_sequence.append(i_anc_dict[mep_i_node])
+                    mep_item_sequence_dict = diffap_model.getExpectedProfitDictBatch(seed_set, now_seed_forest, mep_item_sequence, mep_item_dict_sequence)
                     for midl in range(len(mep_item_sequence_dict)):
                         k_prod_g = mep_item_sequence[midl][1]
                         i_node_g = mep_item_sequence[midl][2]
@@ -587,7 +590,7 @@ class ModelAP:
             expected_profit_k = [0.0 for _ in range(num_product)]
             now_seed_forest = [{} for _ in range(num_product)]
 
-            celf_heap, mep = ssngap_model.generateCelfHeapR()
+            celf_heap, i_anc_dict, mep = ssngap_model.generateCelfHeapR()
             mep_item = heap.heappop_max(celf_heap)
             mep_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
 
@@ -609,11 +612,14 @@ class ModelAP:
                     now_seed_forest[mep_k_prod] = mep[1].copy()
                     mep = (0.0, {})
                 else:
-                    mep_item_sequence = [mep_item]
+                    mep_item_sequence, mep_item_dict_sequence = [mep_item], [i_anc_dict[mep_i_node]]
                     while len(mep_item_sequence) < self.batch and celf_heap[0][3] != seed_set_length and celf_heap[0][2] != '-1':
                         mep_item = heap.heappop_max(celf_heap)
-                        mep_item_sequence.append(mep_item)
-                    mep_item_sequence_dict = diffap_model.getExpectedProfitDictBatch(seed_set, now_seed_forest, mep_item_sequence)
+                        mep_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
+                        if round(now_budget + seed_cost_dict[mep_i_node], 4) <= total_budget:
+                            mep_item_sequence.append(mep_item)
+                            mep_item_dict_sequence.append(i_anc_dict[mep_i_node])
+                    mep_item_sequence_dict = diffap_model.getExpectedProfitDictBatch(seed_set, now_seed_forest, mep_item_sequence, mep_item_dict_sequence)
                     for midl in range(len(mep_item_sequence_dict)):
                         k_prod_g = mep_item_sequence[midl][1]
                         i_node_g = mep_item_sequence[midl][2]
@@ -667,7 +673,7 @@ class ModelAP:
             expected_profit_k = [0.0 for _ in range(num_product)]
             now_seed_forest = [{} for _ in range(num_product)]
 
-            celf_heap, mep = ssngap_model.generateCelfHeapR()
+            celf_heap, i_anc_dict, mep = ssngap_model.generateCelfHeapR()
             mep_item = heap.heappop_max(celf_heap)
             mep_seed_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
 
@@ -689,11 +695,14 @@ class ModelAP:
                     now_seed_forest[mep_k_prod] = mep[1].copy()
                     mep = (0.0, {})
                 else:
-                    mep_item_sequence = [mep_item]
+                    mep_item_sequence, mep_item_dict_sequence = [mep_item], [i_anc_dict[mep_i_node]]
                     while len(mep_item_sequence) < self.batch and celf_heap[0][3] != seed_set_length and celf_heap[0][2] != '-1':
                         mep_item = heap.heappop_max(celf_heap)
-                        mep_item_sequence.append(mep_item)
-                    mep_item_sequence_dict = diffap_model.getExpectedProfitDictBatch(seed_set, now_seed_forest, mep_item_sequence)
+                        mep_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
+                        if round(now_budget + seed_cost_dict[mep_i_node], 4) <= total_budget:
+                            mep_item_sequence.append(mep_item)
+                            mep_item_dict_sequence.append(i_anc_dict[mep_i_node])
+                    mep_item_sequence_dict = diffap_model.getExpectedProfitDictBatch(seed_set, now_seed_forest, mep_item_sequence, mep_item_dict_sequence)
                     for midl in range(len(mep_item_sequence_dict)):
                         k_prod_g = mep_item_sequence[midl][1]
                         i_node_g = mep_item_sequence[midl][2]
@@ -1073,7 +1082,7 @@ class ModelAPPW:
             expected_profit_k = [0.0 for _ in range(num_product)]
             now_seed_forest = [{} for _ in range(num_product)]
 
-            celf_heap, mep = ssngappw_model.generateCelfHeap()
+            celf_heap, i_anc_dict, mep = ssngappw_model.generateCelfHeap()
             mep_item = heap.heappop_max(celf_heap)
             mep_mg, mep_k_prod, mep_i_node, mep_flag = mep_item
 
@@ -1095,11 +1104,14 @@ class ModelAPPW:
                     now_seed_forest[mep_k_prod] = mep[1].copy()
                     mep = (0.0, {})
                 else:
-                    mep_item_sequence = [mep_item]
+                    mep_item_sequence, mep_item_dict_sequence = [mep_item], [i_anc_dict[mep_i_node]]
                     while len(mep_item_sequence) < self.batch and celf_heap[0][3] != seed_set_length and celf_heap[0][2] != '-1':
                         mep_item = heap.heappop_max(celf_heap)
-                        mep_item_sequence.append(mep_item)
-                    mep_item_sequence_dict = diffap_model.getExpectedProfitDictBatch(seed_set, now_seed_forest, mep_item_sequence)
+                        mep_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
+                        if round(now_budget + seed_cost_dict[mep_i_node], 4) <= total_budget:
+                            mep_item_sequence.append(mep_item)
+                            mep_item_dict_sequence.append(i_anc_dict[mep_i_node])
+                    mep_item_sequence_dict = diffap_model.getExpectedProfitDictBatch(seed_set, now_seed_forest, mep_item_sequence, mep_item_dict_sequence)
                     for midl in range(len(mep_item_sequence_dict)):
                         k_prod_g = mep_item_sequence[midl][1]
                         i_node_g = mep_item_sequence[midl][2]
@@ -1149,7 +1161,7 @@ class ModelAPPW:
             expected_profit_k = [0.0 for _ in range(num_product)]
             now_seed_forest = [{} for _ in range(num_product)]
 
-            celf_heap, mep = ssngappw_model.generateCelfHeapR()
+            celf_heap, i_anc_dict, mep = ssngappw_model.generateCelfHeapR()
             mep_item = heap.heappop_max(celf_heap)
             mep_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
 
@@ -1171,11 +1183,14 @@ class ModelAPPW:
                     now_seed_forest[mep_k_prod] = mep[1].copy()
                     mep = (0.0, {})
                 else:
-                    mep_item_sequence = [mep_item]
+                    mep_item_sequence, mep_item_dict_sequence = [mep_item], [i_anc_dict[mep_i_node]]
                     while len(mep_item_sequence) < self.batch and celf_heap[0][3] != seed_set_length and celf_heap[0][2] != '-1':
                         mep_item = heap.heappop_max(celf_heap)
-                        mep_item_sequence.append(mep_item)
-                    mep_item_sequence_dict = diffap_model.getExpectedProfitDictBatch(seed_set, now_seed_forest, mep_item_sequence)
+                        mep_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
+                        if round(now_budget + seed_cost_dict[mep_i_node], 4) <= total_budget:
+                            mep_item_sequence.append(mep_item)
+                            mep_item_dict_sequence.append(i_anc_dict[mep_i_node])
+                    mep_item_sequence_dict = diffap_model.getExpectedProfitDictBatch(seed_set, now_seed_forest, mep_item_sequence, mep_item_dict_sequence)
                     for midl in range(len(mep_item_sequence_dict)):
                         k_prod_g = mep_item_sequence[midl][1]
                         i_node_g = mep_item_sequence[midl][2]
@@ -1226,7 +1241,7 @@ class ModelAPPW:
             expected_profit_k = [0.0 for _ in range(num_product)]
             now_seed_forest = [{} for _ in range(num_product)]
 
-            celf_heap, mep = ssngappw_model.generateCelfHeapR()
+            celf_heap, i_anc_dict, mep = ssngappw_model.generateCelfHeapR()
             mep_item = heap.heappop_max(celf_heap)
             mep_seed_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
 
@@ -1248,11 +1263,14 @@ class ModelAPPW:
                     now_seed_forest[mep_k_prod] = mep[1].copy()
                     mep = (0.0, {})
                 else:
-                    mep_item_sequence = [mep_item]
+                    mep_item_sequence, mep_item_dict_sequence = [mep_item], [i_anc_dict[mep_i_node]]
                     while len(mep_item_sequence) < self.batch and celf_heap[0][3] != seed_set_length and celf_heap[0][2] != '-1':
                         mep_item = heap.heappop_max(celf_heap)
-                        mep_item_sequence.append(mep_item)
-                    mep_item_sequence_dict = diffap_model.getExpectedProfitDictBatch(seed_set, now_seed_forest, mep_item_sequence)
+                        mep_ratio, mep_k_prod, mep_i_node, mep_flag = mep_item
+                        if round(now_budget + seed_cost_dict[mep_i_node], 4) <= total_budget:
+                            mep_item_sequence.append(mep_item)
+                            mep_item_dict_sequence.append(i_anc_dict[mep_i_node])
+                    mep_item_sequence_dict = diffap_model.getExpectedProfitDictBatch(seed_set, now_seed_forest, mep_item_sequence, mep_item_dict_sequence)
                     for midl in range(len(mep_item_sequence_dict)):
                         k_prod_g = mep_item_sequence[midl][1]
                         i_node_g = mep_item_sequence[midl][2]
