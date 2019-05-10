@@ -79,12 +79,14 @@ class SeedSelectionNGAPPW:
     def generateCelfHeap(self):
         # -- calculate expected profit for all combinations of nodes and products --
         ### celf_item: (list) (mg, k_prod, i_node, flag)
+        i_anc_dict = {}
         celf_heap = [(0.0, -1, '-1', 0)]
         mep = (0.0, {})
         diffap_ss = DiffusionAccProb(self.graph_dict, self.seed_cost_dict, self.product_list)
 
         for i in self.graph_dict:
             i_dict = diffap_ss.buildNodeDict({i}, i, 1, set())
+            i_anc_dict[i] = i_dict
             ei = getExpectedInf(i_dict)
 
             if ei > 0:
@@ -95,17 +97,19 @@ class SeedSelectionNGAPPW:
                     celf_item = (mg, k, i, 0)
                     heap.heappush_max(celf_heap, celf_item)
 
-        return celf_heap, mep
+        return celf_heap, i_anc_dict, mep
 
     def generateCelfHeapR(self):
         # -- calculate expected profit for all combinations of nodes and products --
         ### celf_item: (list) (mg_ratio, k_prod, i_node, flag)
+        i_anc_dict = {}
         celf_heap = [(0.0, -1, '-1', 0)]
         mep = (0.0, {})
         diffap_ss = DiffusionAccProb(self.graph_dict, self.seed_cost_dict, self.product_list)
 
         for i in self.graph_dict:
             i_dict = diffap_ss.buildNodeDict({i}, i, 1, set())
+            i_anc_dict[i] = i_dict
             ei = getExpectedInf(i_dict)
 
             if ei > 0:
@@ -119,4 +123,4 @@ class SeedSelectionNGAPPW:
                     celf_item = (mg_ratio, k, i, 0)
                     heap.heappush_max(celf_heap, celf_item)
 
-        return celf_heap, mep
+        return celf_heap, i_anc_dict, mep
