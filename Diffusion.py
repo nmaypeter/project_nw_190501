@@ -290,7 +290,18 @@ class DiffusionAccProb:
 
         return s_dict_seq
 
-    def getExpectedProfitDictBatch(self, s_set, now_s_forest, mep_item_seq):
+    @staticmethod
+    def excludeSeedSetFromIDict(s_set, mep_item_dict):
+        i_dict = {}
+
+        for i in mep_item_dict:
+            for i_prob, i_anc in mep_item_dict[i]:
+                if not (s_set & i_anc):
+                    insertProbIntoDict(i_dict, i, i_prob, i_anc)
+
+        return i_dict
+
+    def getExpectedProfitDictBatch(self, s_set, now_s_forest, mep_item_seq, mep_item_dict_seq):
         mep_item_seq = [(mep_item_l[1], mep_item_l[2]) for mep_item_l in mep_item_seq]
         mep_item_dictionary = [{} for _ in range(len(mep_item_seq))]
         diff_d = DiffusionAccProb(self.graph_dict, self.seed_cost_dict, self.product_list)
@@ -309,7 +320,7 @@ class DiffusionAccProb:
             s_set_k = s_set[k_prod].copy()
             s_set_k.add(i_node)
             lmis_o_dict = mep_item_dictionary[lmis]
-            lmis_n_dict = diff_d.buildNodeDict(s_set_k, i_node, 1, set())
+            lmis_n_dict = diff_d.excludeSeedSetFromIDict(s_set_k, mep_item_dict_seq[lmis])
             combineDict(lmis_o_dict, lmis_n_dict)
 
         return mep_item_dictionary
