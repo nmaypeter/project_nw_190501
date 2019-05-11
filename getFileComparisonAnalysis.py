@@ -13,8 +13,8 @@ profit_list, cost_list, time_list = [], [], []
 ratio_profit_list, ratio_cost_list = [], []
 num_seed_list, num_customer_list = [], []
 for data_setting in dataset_seq:
-    dataset_name = 'email_undirected' * (data_setting == 1) + 'dnc_email_directed' * (data_setting == 2) + 'email_Eu_core_directed' * (data_setting == 3) + \
-                    'WikiVote_directed' * (data_setting == 4) + 'NetPHY_undirected' * (data_setting == 5)
+    dataset_name = 'email' * (data_setting == 1) + 'dnc_email' * (data_setting == 2) + 'email_Eu_core' * (data_setting == 3) + \
+                    'WikiVote' * (data_setting == 4) + 'NetHEPT' * (data_setting == 5)
     for cm in cm_seq:
         cascade_model = 'ic' * (cm == 1) + 'wc' * (cm == 2)
         for wallet_distribution in wallet_distribution_seq:
