@@ -6,8 +6,8 @@ if __name__ == '__main__':
     cm_seq = [1, 2]
     wd_seq = [1, 2]
     for data_setting in dataset_seq:
-        dataset_name = 'email_undirected' * (data_setting == 1) + 'dnc_email_directed' * (data_setting == 2) + 'email_Eu_core_directed' * (data_setting == 3) + \
-                       'WikiVote_directed' * (data_setting == 4) + 'NetPHY_undirected' * (data_setting == 5)
+        dataset_name = 'email' * (data_setting == 1) + 'dnc_email' * (data_setting == 2) + 'email_Eu_core' * (data_setting == 3) + \
+                       'WikiVote' * (data_setting == 4) + 'NetHEPT' * (data_setting == 5)
         for cm in cm_seq:
             cascade_model = 'ic' * (cm == 1) + 'wc' * (cm == 2)
             for prod_setting in prod_seq:
